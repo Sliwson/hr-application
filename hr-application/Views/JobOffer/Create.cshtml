@@ -6,10 +6,9 @@
 }
 
 <h1>Create new job offer</h1>
-
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="View">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -24,18 +23,24 @@
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+                <textarea asp-for="Description" rows="8" class="form-control"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="MinimumSalary" class="control-label"></label>
-                <input asp-for="MinimumSalary" class="form-control" />
-                <span asp-validation-for="MinimumSalary" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaximumSalary" class="control-label"></label>
-                <input asp-for="MaximumSalary" class="form-control" />
-                <span asp-validation-for="MaximumSalary" class="text-danger"></span>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="MinimumSalary" class="control-label"></label>
+                        <input asp-for="MinimumSalary" class="form-control" />
+                        <span asp-validation-for="MinimumSalary" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label asp-for="MaximumSalary" class="control-label"></label>
+                        <input asp-for="MaximumSalary" class="form-control" />
+                        <span asp-validation-for="MaximumSalary" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label asp-for="Location" class="control-label"></label>
