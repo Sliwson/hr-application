@@ -9,7 +9,7 @@ namespace hr_application.Controllers
 {
     public class JobOfferController : Controller
     {
-        public IActionResult List()
+        public IActionResult Index()
         {
             return View(JobOffer._jobOffers);
         }
