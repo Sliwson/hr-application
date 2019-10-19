@@ -13,5 +13,10 @@ namespace hr_application.Controllers
         {
             return View(JobOffer._jobOffers);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
