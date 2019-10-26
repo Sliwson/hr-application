@@ -35,5 +35,18 @@ namespace hr_application.Controllers
             JobOffer._jobOffers.Add(jobOffer);
             return RedirectToAction("Index");
         }
+
+        public IActionResult Details(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var offer = JobOffer._jobOffers.FirstOrDefault(x => x.Id == id);
+
+            if (offer == null)
+                return NotFound();
+
+            return View(offer);
+        }
     }
 }
