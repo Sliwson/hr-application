@@ -9,9 +9,26 @@ namespace hr_application.Controllers
 {
     public class JobOfferController : Controller
     {
-        public IActionResult List()
+        public IActionResult Index()
         {
             return View(JobOffer._jobOffers);
+        }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Create(JobOffer jobOffer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(jobOffer);
+            }
+
+            JobOffer._jobOffers.Add(jobOffer);
+            return RedirectToAction("Index");
         }
     }
 }
