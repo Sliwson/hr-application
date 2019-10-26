@@ -48,5 +48,17 @@ namespace hr_application.Controllers
 
             return View(offer);
         }
+
+        public IActionResult Delete(int id)
+        {
+            var offer = JobOffer._jobOffers.Find(x => x.Id == id);
+            if (offer != null)
+            {
+                JobOffer._jobOffers.Remove(offer);
+                return RedirectToAction("Index");
+            }
+
+            return NotFound();
+        }
     }
 }
