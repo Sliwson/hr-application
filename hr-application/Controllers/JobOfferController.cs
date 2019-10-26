@@ -18,5 +18,17 @@ namespace hr_application.Controllers
         {
             return View();
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Create(JobOffer jobOffer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(jobOffer);
+            }
+
+            JobOffer._jobOffers.Add(jobOffer);
+            return RedirectToAction("Index");
+        }
     }
 }
