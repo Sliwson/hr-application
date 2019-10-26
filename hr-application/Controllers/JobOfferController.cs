@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using hr_application.Models;
+using hr_application.ViewModels;
 
 namespace hr_application.Controllers
 {
@@ -11,7 +12,11 @@ namespace hr_application.Controllers
     {
         public IActionResult Index()
         {
-            return View(JobOffer._jobOffers);
+            List<JobOfferListItemViewModel> displayList = new List<JobOfferListItemViewModel>();
+            foreach (var item in JobOffer._jobOffers)
+                displayList.Add(new JobOfferListItemViewModel(item.Id, item.JobTitle, item.MinimumSalary, item.MaximumSalary, item.Location, item.ExpirationDate));
+
+            return View(displayList);
         }
 
         public IActionResult Create()

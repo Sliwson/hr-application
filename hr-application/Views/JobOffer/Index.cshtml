@@ -1,32 +1,25 @@
-﻿@model IEnumerable<hr_application.Models.JobOffer>
+﻿@model IEnumerable<hr_application.ViewModels.JobOfferListItemViewModel>
 
 @{
-    ViewData["Title"] = "View";
+    ViewData["Title"] = "Job offers";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>View</h1>
+<h1>Job offers</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.JobTitle)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MinimumSalary)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaximumSalary)
+                @Html.DisplayNameFor(model => model.Salary)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Location)
@@ -41,19 +34,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.JobTitle)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MinimumSalary)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MaximumSalary)
+                @Html.DisplayFor(modelItem => item.Salary)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Location)
@@ -62,9 +46,9 @@
                 @Html.DisplayFor(modelItem => item.ExpirationDate)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.ActionLink("Edit", "Edit", new { item.Id }) |
+                @Html.ActionLink("Details", "Details", new { item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { item.Id })
             </td>
         </tr>
 }

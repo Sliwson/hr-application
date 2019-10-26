@@ -9,17 +9,23 @@ namespace hr_application.ViewModels
 {
     public class JobOfferListItemViewModel
     {
-        public JobOfferListItemViewModel(string jobTitle, string salaryRange, string location, DateTime expirationDate)
+        public JobOfferListItemViewModel(int id, string jobTitle, int minimumSalary, int maximumSalary, string location, DateTime expirationDate)
         {
+            Id = id;
             JobTitle = jobTitle;
-            SalaryRange = salaryRange;
             Location = location;
             ExpirationDate = expirationDate;
-        }
 
+            if (minimumSalary == maximumSalary)
+                Salary = $"{minimumSalary}";
+            else
+                Salary = $"{minimumSalary} - {maximumSalary}";
+        }
+        
+        public int Id { get; set; }
         public string JobTitle { get; set; }
 
-        public string SalaryRange { get; set; }
+        public string Salary { get; set; }
 
         public string Location { get; set; }
 
