@@ -37,6 +37,9 @@ namespace hr_application.Models
         [Required]
         public IFormFile CVFile { get; set; }
 
+        public int RelatedOfferId { get; set; }
+        public JobOffer RelatedOffer { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (!IsEmailValid(Email))

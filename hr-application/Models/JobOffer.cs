@@ -40,6 +40,8 @@ namespace hr_application.Models
         [Required]
         [DataType(DataType.Date)]
         public DateTime ExpirationDate { get; set; }
+        
+        public ICollection<Application> Applications { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
