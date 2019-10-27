@@ -46,7 +46,8 @@ namespace hr_application.Controllers
             if (offer == null)
                 return NotFound();
 
-            return View(offer);
+            ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(offer);
+            return View();
         }
 
         public IActionResult Edit(int ?id)
