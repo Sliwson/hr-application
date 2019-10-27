@@ -48,5 +48,49 @@ namespace hr_application.Controllers
 
             return View(offer);
         }
+
+        public IActionResult Edit(int ?id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var offer = JobOffer._jobOffers.Find(x => x.Id == id);
+            if (offer == null)
+                return NotFound();
+
+            return View(offer);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, JobOffer jobOffer)
+        {
+            if (id != jobOffer.Id)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var foundOffer = JobOffer._jobOffers.Find(x => x.Id == id);
+                if (foundOffer == null)
+                    return NotFound();
+
+                JobOffer._jobOffers[JobOffer._jobOffers.IndexOf(foundOffer)] = jobOffer;
+                return RedirectToAction("Index");
+            }
+
+            return View(jobOffer);
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var offer = JobOffer._jobOffers.Find(x => x.Id == id);
+            if (offer != null)
+            {
+                JobOffer._jobOffers.Remove(offer);
+                return RedirectToAction("Index");
+            }
+
+            return NotFound();
+        }
     }
 }
