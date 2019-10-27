@@ -14,7 +14,7 @@ namespace hr_application.Controllers
         {
             List<JobOfferListItemViewModel> displayList = new List<JobOfferListItemViewModel>();
             foreach (var item in JobOffer._jobOffers)
-                displayList.Add(new JobOfferListItemViewModel(item.Id, item.JobTitle, item.MinimumSalary, item.MaximumSalary, item.Location, item.ExpirationDate));
+                displayList.Add(new JobOfferListItemViewModel(item));
 
             return View(displayList);
         }
