@@ -9,6 +9,11 @@ namespace hr_application.Models
 {
     public class Application
     {
+        public static List<Application> _applications = new List<Application>
+        {
+            new Application {Id = 0, Email = "test@test.pl", FirstName = "Mark", LastName = "Gawronsky", PhoneNumber = "120120120", CoverLetterFile = null, CVFile = null}
+        };
+
         public int Id { get; set; }
 
         [Required]
