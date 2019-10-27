@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using hr_application.Models;
 using hr_application.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace hr_application.Controllers
 {
@@ -25,7 +26,29 @@ namespace hr_application.Controllers
                 return NotFound();
 
             ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
-            return View();
+
+            var application = new Application { RelatedOfferId = id.Value };
+            return View(application);
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult Create(Application application)
+        {
+            var jobOffer = JobOffer._jobOffers.Find(j => j.Id == application.RelatedOfferId);
+            if (jobOffer == null)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
+                return View(application);
+            }
+
+            Application._applications.Add(application);
+            jobOffer.Applications.Add(application);
+
+            return RedirectToAction("Index");
+        }
+
     }
 }
