@@ -50,5 +50,16 @@ namespace hr_application.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult Delete(int id)
+        {
+            var application = Application._applications.Find(x => x.Id == id);
+            if (application != null)
+            {
+                Application._applications.Remove(application);    
+                return RedirectToAction("Index");
+            }
+
+            return NotFound();
+        }
     }
 }
