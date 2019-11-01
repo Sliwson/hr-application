@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace hr_application.Models
 {
-    public class Application
+    public class Application : IValidatableObject
     {
         public static List<Application> _applications = new List<Application>
         {
@@ -68,7 +68,7 @@ namespace hr_application.Models
 
         private bool IsFileValid(IFormFile file)
         {
-            const int MaxFileLength = 1024 * 12;
+            const int MaxFileLength = 1024 * 1024 * 12;
             if (file.Length > MaxFileLength)
                 return false;
 

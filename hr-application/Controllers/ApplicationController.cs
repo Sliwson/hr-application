@@ -21,11 +21,8 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            var jobOffer = JobOffer._jobOffers.Find(j => j.Id == id);
-            if (jobOffer == null)
+            if (!FillJobOfferViewdata(id.Value))
                 return NotFound();
-
-            ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
 
             var application = new Application { RelatedOfferId = id.Value };
             return View(application);
@@ -50,6 +47,44 @@ namespace hr_application.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult Edit(int ?id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var application = Application._applications.Find(x => x.Id == id);
+            if (application == null)
+                return NotFound();
+
+            if (!FillJobOfferViewdata(application.RelatedOfferId))
+                return NotFound();
+            
+            return View(application);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Application application)
+        {
+            if (id != application.Id)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var foundApplication = Application._applications.Find(x => x.Id == id);
+                if (foundApplication == null)
+                    return NotFound();
+
+                Application._applications[Application._applications.IndexOf(foundApplication)] = application;
+                return RedirectToAction("Index");
+            }
+
+            if (!FillJobOfferViewdata(application.RelatedOfferId))
+                return NotFound();
+
+            return View(application);
+        }
+
         public IActionResult Delete(int id)
         {
             var application = Application._applications.Find(x => x.Id == id);
@@ -60,6 +95,16 @@ namespace hr_application.Controllers
             }
 
             return NotFound();
+        }
+
+        private bool FillJobOfferViewdata(int id)
+        {
+            var jobOffer = JobOffer._jobOffers.Find(j => j.Id == id);
+            if (jobOffer == null)
+                return false;
+
+            ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
+            return true;
         }
     }
 }
