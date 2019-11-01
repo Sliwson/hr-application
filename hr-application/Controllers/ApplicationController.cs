@@ -50,6 +50,23 @@ namespace hr_application.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult Edit(int ?id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var application = Application._applications.Find(x => x.Id == id);
+            if (application == null)
+                return NotFound();
+            
+            var jobOffer = JobOffer._jobOffers.Find(j => j.Id == application.RelatedOfferId);
+            if (jobOffer == null)
+                return NotFound();
+
+            ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
+            return View(application);
+        }
+
         public IActionResult Delete(int id)
         {
             var application = Application._applications.Find(x => x.Id == id);
