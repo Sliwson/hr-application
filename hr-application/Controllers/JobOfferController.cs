@@ -32,6 +32,7 @@ namespace hr_application.Controllers
                 return View(jobOffer);
             }
 
+            jobOffer.Applications = new List<Application>();
             JobOffer._jobOffers.Add(jobOffer);
             return RedirectToAction("Index");
         }
