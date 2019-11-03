@@ -6,6 +6,11 @@
     <RootNamespace>hr_application</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Migrations\20191103094554_Initial.cs" />
+    <Compile Remove="Migrations\20191103094554_Initial.Designer.cs" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
