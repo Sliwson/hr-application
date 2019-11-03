@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,9 +33,11 @@ namespace hr_application.Models
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 
+        [NotMapped]
         public IFormFile CoverLetterFile { get; set; }
 
         [Required]
+        [NotMapped]
         public IFormFile CVFile { get; set; }
 
         public int RelatedOfferId { get; set; }
