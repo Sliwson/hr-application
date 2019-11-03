@@ -36,7 +36,7 @@ namespace hr_application.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(Application application)
+        public IActionResult Create(int? id, Application application)
         {
             var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
             if (jobOffer == null)
@@ -48,6 +48,7 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
+            application.Id = 0;
             hrContext.Applications.Add(application);
             hrContext.SaveChanges();
 
@@ -63,7 +64,7 @@ namespace hr_application.Controllers
             if (application == null)
                 return NotFound();
 
-            if (!FillJobOfferViewdata(application))
+            if (!FillJobOfferViewdata(application.RelatedOfferId))
                 return NotFound();
             
             return View(application);
@@ -83,10 +84,12 @@ namespace hr_application.Controllers
                     return NotFound();
 
                 hrContext.Entry(foundApplication).CurrentValues.SetValues(application);
+                hrContext.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
-            if (!FillJobOfferViewdata(application))
+            if (!FillJobOfferViewdata(application.RelatedOfferId))
                 return NotFound();
 
             return View(application);
@@ -104,16 +107,6 @@ namespace hr_application.Controllers
             }
 
             return NotFound();
-        }
-
-        private bool FillJobOfferViewdata(Application application)
-        {
-            var jobOffer = application.RelatedOffer;
-            if (jobOffer == null)
-                return false;
-
-            ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
-            return true;
         }
 
         private bool FillJobOfferViewdata(int id)
