@@ -11,9 +11,16 @@ namespace hr_application.Controllers
 {
     public class ApplicationController : Controller
     {
+        private readonly HrContext hrContext;
+
+        public ApplicationController(HrContext hrContext)
+        {
+            this.hrContext = hrContext;
+        }
+
         public IActionResult Index()
         {
-            return View(Application._applications);
+            return View(hrContext.Applications.ToList());
         }
 
         public IActionResult Create(int? id)
@@ -29,9 +36,9 @@ namespace hr_application.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(Application application)
+        public IActionResult Create(int? id, Application application)
         {
-            var jobOffer = JobOffer._jobOffers.Find(j => j.Id == application.RelatedOfferId);
+            var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
             if (jobOffer == null)
                 return NotFound();
 
@@ -41,8 +48,9 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            Application._applications.Add(application);
-            jobOffer.Applications.Add(application);
+            application.Id = 0;
+            hrContext.Applications.Add(application);
+            hrContext.SaveChanges();
 
             return RedirectToAction("Index");
         }
@@ -52,7 +60,7 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            var application = Application._applications.Find(x => x.Id == id);
+            var application = hrContext.Applications.Find(id);
             if (application == null)
                 return NotFound();
 
@@ -71,11 +79,13 @@ namespace hr_application.Controllers
 
             if (ModelState.IsValid)
             {
-                var foundApplication = Application._applications.Find(x => x.Id == id);
+                var foundApplication = hrContext.Applications.Find(id);
                 if (foundApplication == null)
                     return NotFound();
 
-                Application._applications[Application._applications.IndexOf(foundApplication)] = application;
+                hrContext.Entry(foundApplication).CurrentValues.SetValues(application);
+                hrContext.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -87,10 +97,12 @@ namespace hr_application.Controllers
 
         public IActionResult Delete(int id)
         {
-            var application = Application._applications.Find(x => x.Id == id);
+            var application = hrContext.Applications.Find(id);
             if (application != null)
             {
-                Application._applications.Remove(application);    
+                hrContext.Applications.Remove(application);
+                hrContext.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -99,7 +111,7 @@ namespace hr_application.Controllers
 
         private bool FillJobOfferViewdata(int id)
         {
-            var jobOffer = JobOffer._jobOffers.Find(j => j.Id == id);
+            var jobOffer = hrContext.JobOffers.Find(id);
             if (jobOffer == null)
                 return false;
 

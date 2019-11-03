@@ -10,10 +10,18 @@ namespace hr_application.Controllers
 {
     public class JobOfferController : Controller
     {
+        private readonly HrContext hrContext;
+
+        public JobOfferController(HrContext hrContext)
+        {
+            this.hrContext = hrContext;
+        }
+
         public IActionResult Index()
         {
             List<JobOfferListItemViewModel> displayList = new List<JobOfferListItemViewModel>();
-            foreach (var item in JobOffer._jobOffers)
+            var jobOffers = hrContext.JobOffers.ToList();
+            foreach (var item in jobOffers)
                 displayList.Add(new JobOfferListItemViewModel(item));
 
             return View(displayList);
@@ -32,8 +40,9 @@ namespace hr_application.Controllers
                 return View(jobOffer);
             }
 
-            jobOffer.Applications = new List<Application>();
-            JobOffer._jobOffers.Add(jobOffer);
+            hrContext.Add(jobOffer);
+            hrContext.SaveChanges();
+
             return RedirectToAction("Index");
         }
 
@@ -42,7 +51,7 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            var offer = JobOffer._jobOffers.FirstOrDefault(x => x.Id == id);
+            var offer = hrContext.JobOffers.Find(id);
 
             if (offer == null)
                 return NotFound();
@@ -56,7 +65,7 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            var offer = JobOffer._jobOffers.Find(x => x.Id == id);
+            var offer = hrContext.JobOffers.Find(id);
             if (offer == null)
                 return NotFound();
 
@@ -72,11 +81,13 @@ namespace hr_application.Controllers
 
             if (ModelState.IsValid)
             {
-                var foundOffer = JobOffer._jobOffers.Find(x => x.Id == id);
+                var foundOffer = hrContext.JobOffers.Find(id);
                 if (foundOffer == null)
                     return NotFound();
 
-                JobOffer._jobOffers[JobOffer._jobOffers.IndexOf(foundOffer)] = jobOffer;
+                hrContext.Entry(foundOffer).CurrentValues.SetValues(jobOffer);
+                hrContext.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -85,10 +96,12 @@ namespace hr_application.Controllers
 
         public IActionResult Delete(int id)
         {
-            var offer = JobOffer._jobOffers.Find(x => x.Id == id);
+            var offer = hrContext.JobOffers.Find(id);
             if (offer != null)
             {
-                JobOffer._jobOffers.Remove(offer);
+                hrContext.Remove(offer);
+                hrContext.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 

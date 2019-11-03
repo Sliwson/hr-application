@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,11 +10,6 @@ namespace hr_application.Models
 {
     public class Application : IValidatableObject
     {
-        public static List<Application> _applications = new List<Application>
-        {
-            new Application {Id = 0, Email = "test@test.pl", FirstName = "Mark", LastName = "Gawronsky", PhoneNumber = "120120120", CoverLetterFile = null, CVFile = null}
-        };
-
         public int Id { get; set; }
 
         [Required]
@@ -32,9 +28,11 @@ namespace hr_application.Models
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 
+        [NotMapped]
         public IFormFile CoverLetterFile { get; set; }
 
         [Required]
+        [NotMapped]
         public IFormFile CVFile { get; set; }
 
         public int RelatedOfferId { get; set; }
