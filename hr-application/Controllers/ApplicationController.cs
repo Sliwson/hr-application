@@ -20,7 +20,12 @@ namespace hr_application.Controllers
 
         public IActionResult Index()
         {
-            return View(hrContext.Applications.ToList());
+            var applications = hrContext.Applications.ToList();
+            var applicationViewModels = new List<ApplicationListItemViewModel>();
+            foreach (var app in applications)
+                applicationViewModels.Add(new ApplicationListItemViewModel(app));
+
+            return View(applicationViewModels);
         }
 
         public IActionResult Create(int? id)
@@ -31,12 +36,12 @@ namespace hr_application.Controllers
             if (!FillJobOfferViewdata(id.Value))
                 return NotFound();
 
-            var application = new Application { RelatedOfferId = id.Value };
+            var application = new ApplicationFormViewModel { RelatedOfferId = id.Value };
             return View(application);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(int? id, Application application)
+        public IActionResult Create(ApplicationFormViewModel application)
         {
             var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
             if (jobOffer == null)
@@ -48,14 +53,23 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            application.Id = 0;
-            hrContext.Applications.Add(application);
+            var applicationEntity = new Application
+            {
+                Email = application.Email,
+                FirstName = application.FirstName,
+                LastName = application.LastName,
+                PhoneNumber = application.PhoneNumber,
+                RelatedOfferId = application.RelatedOfferId,
+                UserId = "0" //placeholder
+            };
+
+            hrContext.Applications.Add(applicationEntity);
             hrContext.SaveChanges();
 
             return RedirectToAction("Index");
         }
 
-        public IActionResult Edit(int ?id)
+        public IActionResult Edit(Guid ?id)
         {
             if (id == null)
                 return NotFound();
@@ -67,35 +81,43 @@ namespace hr_application.Controllers
             if (!FillJobOfferViewdata(application.RelatedOfferId))
                 return NotFound();
             
-            return View(application);
+            return View(new ApplicationFormViewModel(application));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Application application)
+        public IActionResult Edit(Guid id, ApplicationFormViewModel application)
         {
-            if (id != application.Id)
-                return NotFound();
-
             if (ModelState.IsValid)
             {
                 var foundApplication = hrContext.Applications.Find(id);
                 if (foundApplication == null)
                     return NotFound();
 
-                hrContext.Entry(foundApplication).CurrentValues.SetValues(application);
+                var applicationEntity = new Application
+                {
+                    Id = foundApplication.Id,
+                    Email = application.Email,
+                    FirstName = application.FirstName,
+                    LastName = application.LastName,
+                    PhoneNumber = application.PhoneNumber,
+                    RelatedOfferId = application.RelatedOfferId,
+                    UserId = foundApplication.UserId
+                };
+
+                hrContext.Entry(foundApplication).CurrentValues.SetValues(applicationEntity);
                 hrContext.SaveChanges();
 
                 return RedirectToAction("Index");
             }
-
+            
             if (!FillJobOfferViewdata(application.RelatedOfferId))
                 return NotFound();
 
             return View(application);
         }
 
-        public IActionResult Delete(int id)
+        public IActionResult Delete(Guid id)
         {
             var application = hrContext.Applications.Find(id);
             if (application != null)
