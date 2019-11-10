@@ -4,12 +4,21 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using hr_application.Models;
 
 namespace hr_application.ViewModels
 {
     public class ApplicationFormViewModel : IValidatableObject
     {
-        public Guid Id { get; set; }
+        public ApplicationFormViewModel() { }
+        public ApplicationFormViewModel(Application application)
+        {
+            Email = application.Email;
+            FirstName = application.FirstName;
+            LastName = application.LastName;
+            PhoneNumber = application.PhoneNumber;
+            RelatedOfferId = application.RelatedOfferId;
+        }
 
         [Required]
         [StringLength(200)]
