@@ -1,4 +1,4 @@
-﻿@model IEnumerable<hr_application.Models.Application>
+﻿@model IEnumerable<hr_application.ViewModels.ApplicationListItemViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,9 +13,6 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
@@ -34,9 +31,6 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Id)
-            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
