@@ -27,7 +27,7 @@ namespace hr_application.Services
             return applicationViewModels;
         }
 
-        public bool AddApplication(ApplicationFormViewModel application)
+        public bool AddApplication(ApplicationFormViewModel application, string userId)
         {
             var applicationEntity = new Application
             {
@@ -36,7 +36,7 @@ namespace hr_application.Services
                 LastName = application.LastName,
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
-                UserId = "0" //placeholder
+                UserId = userId
             };
 
             hrContext.Applications.Add(applicationEntity);
@@ -45,10 +45,10 @@ namespace hr_application.Services
             return true;
         }
 
-        public bool EditApplication(Guid id, ApplicationFormViewModel application)
+        public bool EditApplication(Guid id, string userId, ApplicationFormViewModel application)
         {
             var foundApplication = hrContext.Applications.Find(id);
-            if (foundApplication == null)
+            if (foundApplication == null || foundApplication.UserId != userId)
                 return false;
 
             var applicationEntity = new Application
@@ -68,10 +68,10 @@ namespace hr_application.Services
             return true;
         }
 
-        public bool DeleteApplication(Guid id)
+        public bool DeleteApplication(Guid id, string userId)
         {
             var application = hrContext.Applications.Find(id);
-            if (application != null)
+            if (application != null && application.UserId == userId)
             {
                 hrContext.Applications.Remove(application);
                 hrContext.SaveChanges();

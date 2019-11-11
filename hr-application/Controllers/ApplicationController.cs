@@ -7,13 +7,17 @@ using hr_application.Models;
 using hr_application.ViewModels;
 using Microsoft.AspNetCore.Http;
 using hr_application.Services;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace hr_application.Controllers
 {
+    [Authorize]
     public class ApplicationController : Controller
     {
         private readonly HrContext hrContext;
         private readonly ApplicationService applicationService;
+
         public ApplicationController(HrContext hrContext, ApplicationService applicationService)
         {
             this.hrContext = hrContext;
@@ -51,7 +55,8 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            applicationService.AddApplication(application);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            applicationService.AddApplication(application, userId.Value);
             return RedirectToAction("Index");
         }
 
@@ -61,7 +66,8 @@ namespace hr_application.Controllers
                 return NotFound();
 
             var application = hrContext.Applications.Find(id);
-            if (application == null)
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (application == null || application.UserId != userId.Value)
                 return NotFound();
 
             if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
@@ -76,7 +82,8 @@ namespace hr_application.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (applicationService.EditApplication(id, application))
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (applicationService.EditApplication(id, userId.Value, application))
                     return RedirectToAction("Index");
                 else
                     return NotFound();
@@ -90,7 +97,8 @@ namespace hr_application.Controllers
 
         public IActionResult Delete(Guid id)
         {
-            if (applicationService.DeleteApplication(id))
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (applicationService.DeleteApplication(id, userId.Value))
                 return RedirectToAction("Index");
             else
                 return NotFound();
