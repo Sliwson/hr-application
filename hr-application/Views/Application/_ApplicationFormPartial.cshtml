@@ -1,4 +1,4 @@
-﻿@model hr_application.Models.Application
+﻿@model hr_application.ViewModels.ApplicationFormViewModel
 
 <form asp-action="View" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -33,7 +33,6 @@
         <span asp-validation-for="CVFile" class="text-danger"></span>
     </div>
     <input type="hidden" asp-for="RelatedOfferId"/>
-    <input type="hidden" asp-for="Id"/>
     <div class="form-group">
        <input type="submit" value="@ViewData["FormButtonString"]" class="btn btn-primary" />
     </div>

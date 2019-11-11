@@ -6,21 +6,34 @@ using Microsoft.AspNetCore.Mvc;
 using hr_application.Models;
 using hr_application.ViewModels;
 using Microsoft.AspNetCore.Http;
+using hr_application.Services;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace hr_application.Controllers
 {
+    [Authorize]
     public class ApplicationController : Controller
     {
         private readonly HrContext hrContext;
+        private readonly ApplicationService applicationService;
 
-        public ApplicationController(HrContext hrContext)
+        public ApplicationController(HrContext hrContext, ApplicationService applicationService)
         {
             this.hrContext = hrContext;
+            this.applicationService = applicationService;
         }
 
         public IActionResult Index()
         {
-            return View(hrContext.Applications.ToList());
+            var applications = applicationService.GetAllApplications();
+            return View(applications);
+        }
+
+        public IActionResult MyApplications()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return View(applicationService.GetApplicaionsForUser(userId));
         }
 
         public IActionResult Create(int? id)
@@ -28,15 +41,15 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            if (!FillJobOfferViewdata(id.Value))
+            if (!applicationService.FillJobOfferViewdata(id.Value, ViewData))
                 return NotFound();
 
-            var application = new Application { RelatedOfferId = id.Value };
+            var application = new ApplicationFormViewModel { RelatedOfferId = id.Value };
             return View(application);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(int? id, Application application)
+        public IActionResult Create(ApplicationFormViewModel application)
         {
             var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
             if (jobOffer == null)
@@ -48,75 +61,53 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            application.Id = 0;
-            hrContext.Applications.Add(application);
-            hrContext.SaveChanges();
-
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            applicationService.AddApplication(application, userId.Value);
             return RedirectToAction("Index");
         }
 
-        public IActionResult Edit(int ?id)
+        public IActionResult Edit(Guid ?id)
         {
             if (id == null)
                 return NotFound();
 
             var application = hrContext.Applications.Find(id);
-            if (application == null)
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (application == null || application.UserId != userId.Value)
                 return NotFound();
 
-            if (!FillJobOfferViewdata(application.RelatedOfferId))
+            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
                 return NotFound();
             
-            return View(application);
+            return View(new ApplicationFormViewModel(application));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Application application)
+        public IActionResult Edit(Guid id, ApplicationFormViewModel application)
         {
-            if (id != application.Id)
-                return NotFound();
-
             if (ModelState.IsValid)
             {
-                var foundApplication = hrContext.Applications.Find(id);
-                if (foundApplication == null)
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (applicationService.EditApplication(id, userId.Value, application))
+                    return RedirectToAction("Index");
+                else
                     return NotFound();
-
-                hrContext.Entry(foundApplication).CurrentValues.SetValues(application);
-                hrContext.SaveChanges();
-
-                return RedirectToAction("Index");
             }
-
-            if (!FillJobOfferViewdata(application.RelatedOfferId))
+            
+            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
                 return NotFound();
 
             return View(application);
         }
 
-        public IActionResult Delete(int id)
+        public IActionResult Delete(Guid id)
         {
-            var application = hrContext.Applications.Find(id);
-            if (application != null)
-            {
-                hrContext.Applications.Remove(application);
-                hrContext.SaveChanges();
-
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (applicationService.DeleteApplication(id, userId.Value))
                 return RedirectToAction("Index");
-            }
-
-            return NotFound();
-        }
-
-        private bool FillJobOfferViewdata(int id)
-        {
-            var jobOffer = hrContext.JobOffers.Find(id);
-            if (jobOffer == null)
-                return false;
-
-            ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
-            return true;
+            else
+                return NotFound();
         }
     }
 }
