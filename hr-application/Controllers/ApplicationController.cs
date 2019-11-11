@@ -22,12 +22,8 @@ namespace hr_application.Controllers
 
         public IActionResult Index()
         {
-            var applications = hrContext.Applications.ToList();
-            var applicationViewModels = new List<ApplicationListItemViewModel>();
-            foreach (var app in applications)
-                applicationViewModels.Add(new ApplicationListItemViewModel(app));
-
-            return View(applicationViewModels);
+            var applications = applicationService.GetAllApplications();
+            return View(applications);
         }
 
         public IActionResult Create(int? id)
@@ -35,7 +31,7 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            if (!FillJobOfferViewdata(id.Value))
+            if (!applicationService.FillJobOfferViewdata(id.Value, ViewData))
                 return NotFound();
 
             var application = new ApplicationFormViewModel { RelatedOfferId = id.Value };
@@ -55,19 +51,7 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            var applicationEntity = new Application
-            {
-                Email = application.Email,
-                FirstName = application.FirstName,
-                LastName = application.LastName,
-                PhoneNumber = application.PhoneNumber,
-                RelatedOfferId = application.RelatedOfferId,
-                UserId = "0" //placeholder
-            };
-
-            hrContext.Applications.Add(applicationEntity);
-            hrContext.SaveChanges();
-
+            applicationService.AddApplication(application);
             return RedirectToAction("Index");
         }
 
@@ -80,7 +64,7 @@ namespace hr_application.Controllers
             if (application == null)
                 return NotFound();
 
-            if (!FillJobOfferViewdata(application.RelatedOfferId))
+            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
                 return NotFound();
             
             return View(new ApplicationFormViewModel(application));
@@ -92,28 +76,13 @@ namespace hr_application.Controllers
         {
             if (ModelState.IsValid)
             {
-                var foundApplication = hrContext.Applications.Find(id);
-                if (foundApplication == null)
+                if (applicationService.EditApplication(id, application))
+                    return RedirectToAction("Index");
+                else
                     return NotFound();
-
-                var applicationEntity = new Application
-                {
-                    Id = foundApplication.Id,
-                    Email = application.Email,
-                    FirstName = application.FirstName,
-                    LastName = application.LastName,
-                    PhoneNumber = application.PhoneNumber,
-                    RelatedOfferId = application.RelatedOfferId,
-                    UserId = foundApplication.UserId
-                };
-
-                hrContext.Entry(foundApplication).CurrentValues.SetValues(applicationEntity);
-                hrContext.SaveChanges();
-
-                return RedirectToAction("Index");
             }
             
-            if (!FillJobOfferViewdata(application.RelatedOfferId))
+            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
                 return NotFound();
 
             return View(application);
@@ -121,26 +90,10 @@ namespace hr_application.Controllers
 
         public IActionResult Delete(Guid id)
         {
-            var application = hrContext.Applications.Find(id);
-            if (application != null)
-            {
-                hrContext.Applications.Remove(application);
-                hrContext.SaveChanges();
-
+            if (applicationService.DeleteApplication(id))
                 return RedirectToAction("Index");
-            }
-
-            return NotFound();
-        }
-
-        private bool FillJobOfferViewdata(int id)
-        {
-            var jobOffer = hrContext.JobOffers.Find(id);
-            if (jobOffer == null)
-                return false;
-
-            ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
-            return true;
+            else
+                return NotFound();
         }
     }
 }
