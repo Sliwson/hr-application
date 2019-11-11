@@ -20,6 +20,17 @@ namespace hr_application.Services
         public List<ApplicationListItemViewModel> GetAllApplications()
         {
             var applications = hrContext.Applications.ToList();
+            return ConvertToListItems(applications);
+        }
+
+        public List<ApplicationListItemViewModel> GetApplicaionsForUser(string userId)
+        {
+            var applications = hrContext.Applications.Where(a => a.UserId == userId).ToList();
+            return ConvertToListItems(applications);
+        }
+
+        private List<ApplicationListItemViewModel> ConvertToListItems(List<Application> applications)
+        {
             var applicationViewModels = new List<ApplicationListItemViewModel>();
             foreach (var app in applications)
                 applicationViewModels.Add(new ApplicationListItemViewModel(app));

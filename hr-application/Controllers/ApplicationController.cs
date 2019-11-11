@@ -30,6 +30,12 @@ namespace hr_application.Controllers
             return View(applications);
         }
 
+        public IActionResult MyApplications()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            return View(applicationService.GetApplicaionsForUser(userId));
+        }
+
         public IActionResult Create(int? id)
         {
             if (id == null)
