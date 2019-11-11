@@ -6,16 +6,18 @@ using Microsoft.AspNetCore.Mvc;
 using hr_application.Models;
 using hr_application.ViewModels;
 using Microsoft.AspNetCore.Http;
+using hr_application.Services;
 
 namespace hr_application.Controllers
 {
     public class ApplicationController : Controller
     {
         private readonly HrContext hrContext;
-
-        public ApplicationController(HrContext hrContext)
+        private readonly ApplicationService applicationService;
+        public ApplicationController(HrContext hrContext, ApplicationService applicationService)
         {
             this.hrContext = hrContext;
+            this.applicationService = applicationService;
         }
 
         public IActionResult Index()

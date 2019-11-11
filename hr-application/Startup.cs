@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using hr_application.Services;
 
 namespace hr_application
 {
@@ -40,6 +41,8 @@ namespace hr_application
             services.AddDbContext<HrContext>(options => {
                 options.UseSqlServer(Configuration.GetConnectionString("LocalDatabase"));
             });
+
+            services.AddScoped(typeof(ApplicationService));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
