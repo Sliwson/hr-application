@@ -43,6 +43,7 @@ namespace hr_application
             });
 
             services.AddScoped(typeof(ApplicationService));
+            services.AddScoped(typeof(IUserService), typeof(MockUserService));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
