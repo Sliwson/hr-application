@@ -92,7 +92,7 @@ namespace hr_application.Services
             return false;
         }
 
-        public bool FillJobOfferViewdata(int id, ViewDataDictionary viewData)
+        public bool FillJobOfferViewdata(Guid id, ViewDataDictionary viewData)
         {
             var jobOffer = hrContext.JobOffers.Find(id);
             if (jobOffer == null)
