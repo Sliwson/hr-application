@@ -5,26 +5,24 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using hr_application.Models;
 using hr_application.ViewModels;
+using hr_application.Services;
 
 namespace hr_application.Controllers
 {
     public class JobOfferController : Controller
     {
         private readonly HrContext hrContext;
+        private readonly JobOfferService jobOfferService;
 
-        public JobOfferController(HrContext hrContext)
+        public JobOfferController(HrContext hrContext, JobOfferService jobOfferService)
         {
             this.hrContext = hrContext;
+            this.jobOfferService = jobOfferService;
         }
 
         public IActionResult Index()
         {
-            List<JobOfferListItemViewModel> displayList = new List<JobOfferListItemViewModel>();
-            var jobOffers = hrContext.JobOffers.ToList();
-            foreach (var item in jobOffers)
-                displayList.Add(new JobOfferListItemViewModel(item));
-
-            return View(displayList);
+            return View(jobOfferService.GetAllJobOffers());
         }
 
         public IActionResult Create()
@@ -33,26 +31,21 @@ namespace hr_application.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(JobOffer jobOffer)
+        public IActionResult Create(JobOfferFormViewModel jobOffer)
         {
             if (!ModelState.IsValid)
-            {
                 return View(jobOffer);
-            }
 
-            hrContext.Add(jobOffer);
-            hrContext.SaveChanges();
-
+            jobOfferService.AddJobOffer(jobOffer);
             return RedirectToAction("Index");
         }
 
-        public IActionResult Details(int? id)
+        public IActionResult Details(Guid? id)
         {
             if (id == null)
                 return NotFound();
 
             var offer = hrContext.JobOffers.Find(id);
-
             if (offer == null)
                 return NotFound();
 
@@ -60,52 +53,36 @@ namespace hr_application.Controllers
             return View();
         }
 
-        public IActionResult Edit(int ?id)
+        public IActionResult Edit(Guid ?id)
         {
-            if (id == null)
+            var edit = jobOfferService.GetEditViewModel(id);
+            if (edit == null)
                 return NotFound();
-
-            var offer = hrContext.JobOffers.Find(id);
-            if (offer == null)
-                return NotFound();
-
-            return View(offer);
+            else
+                return View(edit);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, JobOffer jobOffer)
+        public IActionResult Edit(Guid id, JobOfferFormViewModel jobOffer)
         {
-            if (id != jobOffer.Id)
-                return NotFound();
-
             if (ModelState.IsValid)
             {
-                var foundOffer = hrContext.JobOffers.Find(id);
-                if (foundOffer == null)
-                    return NotFound();
-
-                hrContext.Entry(foundOffer).CurrentValues.SetValues(jobOffer);
-                hrContext.SaveChanges();
-
-                return RedirectToAction("Index");
+                if (jobOfferService.EditOffer(id, jobOffer))
+                    return RedirectToAction("Index");
+                else
+                    return View(jobOffer);
             }
 
             return View(jobOffer);
         }
 
-        public IActionResult Delete(int id)
+        public IActionResult Delete(Guid id)
         {
-            var offer = hrContext.JobOffers.Find(id);
-            if (offer != null)
-            {
-                hrContext.Remove(offer);
-                hrContext.SaveChanges();
-
+            if (jobOfferService.DeleteJobOffer(id))
                 return RedirectToAction("Index");
-            }
-
-            return NotFound();
+            else
+                return NotFound();
         }
     }
 }
