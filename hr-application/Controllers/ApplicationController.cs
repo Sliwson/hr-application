@@ -12,16 +12,17 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace hr_application.Controllers
 {
-    [Authorize]
     public class ApplicationController : Controller
     {
         private readonly HrContext hrContext;
         private readonly ApplicationService applicationService;
+        private readonly IUserService userService;
 
-        public ApplicationController(HrContext hrContext, ApplicationService applicationService)
+        public ApplicationController(HrContext hrContext, ApplicationService applicationService, IUserService userService)
         {
             this.hrContext = hrContext;
             this.applicationService = applicationService;
+            this.userService = userService;
         }
 
         public IActionResult Index()
@@ -32,7 +33,10 @@ namespace hr_application.Controllers
 
         public IActionResult MyApplications()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            if (!userService.IsAuthenticated())
+                return RedirectToAction(userService.GetRedirectToLoginUrl());
+            
+            var userId = userService.GetUserId();
             return View(applicationService.GetApplicaionsForUser(userId));
         }
 
@@ -44,6 +48,9 @@ namespace hr_application.Controllers
             if (!applicationService.FillJobOfferViewdata(id.Value, ViewData))
                 return NotFound();
 
+            if (!userService.IsAuthenticated())
+                return RedirectToAction(userService.GetRedirectToLoginUrl());
+
             var application = new ApplicationFormViewModel { RelatedOfferId = id.Value };
             return View(application);
         }
@@ -51,6 +58,9 @@ namespace hr_application.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(ApplicationFormViewModel application)
         {
+            if (!userService.IsAuthenticated())
+                return RedirectToAction(userService.GetRedirectToLoginUrl());
+
             var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
             if (jobOffer == null)
                 return NotFound();
@@ -61,8 +71,8 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-            applicationService.AddApplication(application, userId.Value);
+            var userId = userService.GetUserId(); 
+            applicationService.AddApplication(application, userId);
             return RedirectToAction("Index");
         }
 
@@ -71,9 +81,12 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
+            if (!userService.IsAuthenticated())
+                return RedirectToAction(userService.GetRedirectToLoginUrl());
+
             var application = hrContext.Applications.Find(id);
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (application == null || application.UserId != userId.Value)
+            var userId = userService.GetUserId();
+            if (application == null || application.UserId != userId)
                 return NotFound();
 
             if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
@@ -86,10 +99,13 @@ namespace hr_application.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Guid id, ApplicationFormViewModel application)
         {
+            if (!userService.IsAuthenticated())
+                return RedirectToAction(userService.GetRedirectToLoginUrl());
+
             if (ModelState.IsValid)
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (applicationService.EditApplication(id, userId.Value, application))
+                var userId = userService.GetUserId();
+                if (applicationService.EditApplication(id, userId, application))
                     return RedirectToAction("Index");
                 else
                     return NotFound();
@@ -103,8 +119,11 @@ namespace hr_application.Controllers
 
         public IActionResult Delete(Guid id)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (applicationService.DeleteApplication(id, userId.Value))
+            if (!userService.IsAuthenticated())
+                return RedirectToAction(userService.GetRedirectToLoginUrl());
+
+            var userId = userService.GetUserId();
+            if (applicationService.DeleteApplication(id, userId))
                 return RedirectToAction("Index");
             else
                 return NotFound();
