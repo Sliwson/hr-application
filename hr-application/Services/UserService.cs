@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using hr_application.Models;
 
 namespace hr_application.Services
 {
@@ -19,11 +20,19 @@ namespace hr_application.Services
         bool IsAuthenticated();
         string GetUserId();
         UserRole GetUserRole();
-        string GetRedirectToLoginUrl();
+        string GetRedirectToLoginAction();
+        string GetRedirectToLoginController();
     }
 
     public class MockUserService : IUserService
     {
+        public static List<User> _users = new List<User>
+        {
+            new User { Identifier = "test-user", Name = "Pan", Surname = "Pawel", Role = UserRole.User },
+            new User { Identifier = "test-hr", Name = "Pan", Surname = "Hr", Role = UserRole.Hr },
+            new User { Identifier = "test-admin", Name = "Pan", Surname = "Admin", Role = UserRole.Admin }
+        };
+
         public string GetUserId()
         {
             return "test-user";
@@ -39,9 +48,14 @@ namespace hr_application.Services
             return true;
         }
 
-        public string GetRedirectToLoginUrl()
+        public string GetRedirectToLoginAction()
         {
             return "Index";
+        }
+
+        public string GetRedirectToLoginController()
+        {
+            return "Home";
         }
     }
 }

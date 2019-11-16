@@ -34,7 +34,7 @@ namespace hr_application.Controllers
         public IActionResult MyApplications()
         {
             if (!userService.IsAuthenticated())
-                return RedirectToAction(userService.GetRedirectToLoginUrl());
+                return RedirectToLogin();
             
             var userId = userService.GetUserId();
             return View(applicationService.GetApplicaionsForUser(userId));
@@ -49,7 +49,7 @@ namespace hr_application.Controllers
                 return NotFound();
 
             if (!userService.IsAuthenticated())
-                return RedirectToAction(userService.GetRedirectToLoginUrl());
+                return RedirectToLogin();
 
             var application = new ApplicationFormViewModel { RelatedOfferId = id.Value };
             return View(application);
@@ -59,7 +59,7 @@ namespace hr_application.Controllers
         public IActionResult Create(ApplicationFormViewModel application)
         {
             if (!userService.IsAuthenticated())
-                return RedirectToAction(userService.GetRedirectToLoginUrl());
+                return RedirectToLogin();
 
             var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
             if (jobOffer == null)
@@ -82,7 +82,7 @@ namespace hr_application.Controllers
                 return NotFound();
 
             if (!userService.IsAuthenticated())
-                return RedirectToAction(userService.GetRedirectToLoginUrl());
+                return RedirectToLogin();
 
             var application = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
@@ -100,7 +100,7 @@ namespace hr_application.Controllers
         public IActionResult Edit(Guid id, ApplicationFormViewModel application)
         {
             if (!userService.IsAuthenticated())
-                return RedirectToAction(userService.GetRedirectToLoginUrl());
+                return RedirectToLogin();
 
             if (ModelState.IsValid)
             {
@@ -120,13 +120,18 @@ namespace hr_application.Controllers
         public IActionResult Delete(Guid id)
         {
             if (!userService.IsAuthenticated())
-                return RedirectToAction(userService.GetRedirectToLoginUrl());
+                return RedirectToLogin();
 
             var userId = userService.GetUserId();
             if (applicationService.DeleteApplication(id, userId))
                 return RedirectToAction("Index");
             else
                 return NotFound();
+        }
+
+        private IActionResult RedirectToLogin()
+        {
+            return RedirectToAction(userService.GetRedirectToLoginAction(), userService.GetRedirectToLoginController());
         }
     }
 }
