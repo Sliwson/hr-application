@@ -19,9 +19,22 @@ namespace hr_application.Controllers
         public IActionResult Index()
         {
             if (userService.GetUserRole() != UserRole.Admin)
-                return Forbid();
+                return StatusCode(403);
 
             return View();
+        }
+
+        /* DEBUG CODE */
+        public IActionResult Login()
+        {
+            userService.AuthenticateAs(UserRole.Admin);
+            return RedirectToAction("Index");
+        }
+        
+        public IActionResult Logout()
+        {
+            userService.AuthenticateAs(UserRole.NoAuth);
+            return RedirectToAction("Index");
         }
     }
 }

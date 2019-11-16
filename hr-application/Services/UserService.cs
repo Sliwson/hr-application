@@ -22,6 +22,8 @@ namespace hr_application.Services
         UserRole GetUserRole();
         string GetRedirectToLoginAction();
         string GetRedirectToLoginController();
+        /* DEBUG CODE */
+        void AuthenticateAs(UserRole role);
     }
 
     public class MockUserService : IUserService
@@ -35,17 +37,23 @@ namespace hr_application.Services
 
         public string GetUserId()
         {
-            return "test-user";
+            if (currentId < 0)
+                return "";
+            else
+                return _users[currentId].Identifier;
         }
 
         public UserRole GetUserRole()
         {
-            return UserRole.Admin;
+            if (currentId < 0)
+                return UserRole.NoAuth;
+            else
+                return _users[currentId].Role;
         }
 
         public bool IsAuthenticated()
         {
-            return true;
+            return currentId != -1;
         }
 
         public string GetRedirectToLoginAction()
@@ -57,5 +65,20 @@ namespace hr_application.Services
         {
             return "Home";
         }
+
+        /* DEBUG CODE */
+        public void AuthenticateAs(UserRole role)
+        {
+            if (role == UserRole.Admin)
+                currentId = 2;
+            else if (role == UserRole.Hr)
+                currentId = 1;
+            else if (role == UserRole.User)
+                currentId = 0;
+            else
+                currentId = -1;
+        }
+
+        private static int currentId = 2;
     }
 }
