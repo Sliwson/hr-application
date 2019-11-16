@@ -41,7 +41,7 @@ namespace hr_application.ViewModels
         [Required]
         public IFormFile CVFile { get; set; }
 
-        public int RelatedOfferId { get; set; }
+        public Guid RelatedOfferId { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
