@@ -22,7 +22,7 @@ namespace hr_application.ViewModels
                 Salary = $"{jobOffer.MinimumSalary} - {jobOffer.MaximumSalary}";
         }
         
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string JobTitle { get; set; }
 
         public string Salary { get; set; }

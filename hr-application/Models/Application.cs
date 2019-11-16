@@ -22,7 +22,7 @@ namespace hr_application.Models
 
         public string UserId { get; set; }
 
-        public int RelatedOfferId { get; set; }
+        public Guid RelatedOfferId { get; set; }
         public JobOffer RelatedOffer { get; set; }
     }
 }

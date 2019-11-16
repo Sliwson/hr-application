@@ -40,7 +40,7 @@ namespace hr_application.Controllers
             return View(applicationService.GetApplicaionsForUser(userId));
         }
 
-        public IActionResult Create(int? id)
+        public IActionResult Create(Guid? id)
         {
             if (id == null)
                 return NotFound();
