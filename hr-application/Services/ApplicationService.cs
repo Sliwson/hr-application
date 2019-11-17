@@ -11,10 +11,12 @@ namespace hr_application.Services
     public class ApplicationService
     {
         private readonly HrContext hrContext;
+        private readonly IUserService userService;
 
-        public ApplicationService(HrContext context)
+        public ApplicationService(HrContext context, IUserService userService)
         {
             hrContext = context;
+            this.userService = userService;
         }
 
         public List<ApplicationListItemViewModel> GetAllApplications()
@@ -23,10 +25,20 @@ namespace hr_application.Services
             return ConvertToListItems(applications);
         }
 
-        public List<ApplicationListItemViewModel> GetApplicaionsForUser(string userId)
+        public List<ApplicationListItemViewModel> GetUserApplications()
         {
+            var userId = userService.GetUserId();
             var applications = hrContext.Applications.Where(a => a.UserId == userId).ToList();
             return ConvertToListItems(applications);
+        }
+
+        public List<ApplicationListItemViewModel> GetHrUserApplications()
+        {
+            var userId = userService.GetUserId();
+            var applications = from application in hrContext.Applications join offer in hrContext.JobOffers.Where(o => o.UserId == userId)
+                               on application.RelatedOfferId equals offer.Id select application;
+
+            return ConvertToListItems(applications.ToList());
         }
 
         private List<ApplicationListItemViewModel> ConvertToListItems(List<Application> applications)
