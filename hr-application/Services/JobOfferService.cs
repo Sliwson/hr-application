@@ -28,6 +28,20 @@ namespace hr_application.Services
             return displayList;
         }
 
+        public List<JobOfferListItemViewModel> GetUserJobOffers()
+        {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return null;
+
+            var userId = userService.GetUserId();
+            List<JobOfferListItemViewModel> displayList = new List<JobOfferListItemViewModel>();
+            var jobOffers = hrContext.JobOffers.Where(j => j.UserId == userId).ToList();
+            foreach (var item in jobOffers)
+                displayList.Add(new JobOfferListItemViewModel(item));
+
+            return displayList;
+        }
+
         public bool AddJobOffer(JobOfferFormViewModel jobOffer)
         {
             var jobOfferModel = new JobOffer
