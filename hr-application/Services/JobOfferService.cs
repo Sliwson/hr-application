@@ -44,6 +44,9 @@ namespace hr_application.Services
 
         public bool AddJobOffer(JobOfferFormViewModel jobOffer)
         {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return false;
+
             var jobOfferModel = new JobOffer
             {
                 Description = jobOffer.Description,
@@ -51,7 +54,8 @@ namespace hr_application.Services
                 JobTitle = jobOffer.JobTitle,
                 MinimumSalary = jobOffer.MinimumSalary,
                 MaximumSalary = jobOffer.MaximumSalary,
-                Location = jobOffer.Location
+                Location = jobOffer.Location,
+                UserId = userService.GetUserId()
             };
 
             hrContext.Add(jobOfferModel);
