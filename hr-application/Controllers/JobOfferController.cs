@@ -24,7 +24,11 @@ namespace hr_application.Controllers
 
         public IActionResult Index()
         {
-            return View(jobOfferService.GetAllJobOffers());
+            //TODO: separate views for different roles
+            if (userService.GetUserRole() == UserRole.Hr)
+                return View(jobOfferService.GetUserJobOffers());
+            else
+                return View(jobOfferService.GetAllJobOffers());
         }
 
         public IActionResult Create()
