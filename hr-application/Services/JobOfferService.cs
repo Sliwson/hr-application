@@ -10,10 +10,12 @@ namespace hr_application.Services
     public class JobOfferService
     {
         private readonly HrContext hrContext;
+        private readonly IUserService userService;
     
-        public JobOfferService(HrContext hrContext)
+        public JobOfferService(HrContext hrContext, IUserService userService)
         {
             this.hrContext = hrContext;
+            this.userService = userService;
         }
 
         public List<JobOfferListItemViewModel> GetAllJobOffers()
@@ -52,6 +54,9 @@ namespace hr_application.Services
             if (offer == null)
                 return null;
 
+            if (userService.GetUserId() != offer.UserId)
+                return null;
+
             var editOffer = new JobOfferFormViewModel
             {
                 Description = offer.Description,
@@ -69,6 +74,9 @@ namespace hr_application.Services
         {
             var foundOffer = hrContext.JobOffers.Find(id);
             if (foundOffer == null)
+                return false;
+
+            if (userService.GetUserId() != foundOffer.UserId)
                 return false;
 
             var editModel = new JobOffer
@@ -93,6 +101,9 @@ namespace hr_application.Services
         {
             var offer = hrContext.JobOffers.Find(id);
             if (offer == null)
+                return false;
+
+            if (userService.GetUserId() != offer.UserId)
                 return false;
             
             hrContext.Remove(offer);
