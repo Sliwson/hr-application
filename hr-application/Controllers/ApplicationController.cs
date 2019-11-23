@@ -67,7 +67,7 @@ namespace hr_application.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(ApplicationFormViewModel application)
         {
-            if (!userService.IsAuthenticated())
+            if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
 
             var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
@@ -80,8 +80,7 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            var userId = userService.GetUserId(); 
-            applicationService.AddApplication(application, userId);
+            applicationService.AddApplication(application);
             return RedirectToAction("Index");
         }
 
@@ -90,7 +89,7 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            if (!userService.IsAuthenticated())
+            if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
 
             var application = hrContext.Applications.Find(id);
@@ -108,13 +107,12 @@ namespace hr_application.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Guid id, ApplicationFormViewModel application)
         {
-            if (!userService.IsAuthenticated())
+            if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
 
             if (ModelState.IsValid)
             {
-                var userId = userService.GetUserId();
-                if (applicationService.EditApplication(id, userId, application))
+                if (applicationService.EditApplication(id, application))
                     return RedirectToAction("Index");
                 else
                     return NotFound();
@@ -131,8 +129,7 @@ namespace hr_application.Controllers
             if (!userService.IsAuthenticated())
                 return RedirectToLogin();
 
-            var userId = userService.GetUserId();
-            if (applicationService.DeleteApplication(id, userId))
+            if (applicationService.DeleteApplication(id))
                 return RedirectToAction("Index");
             else
                 return NotFound();

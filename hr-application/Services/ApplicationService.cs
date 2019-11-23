@@ -60,8 +60,10 @@ namespace hr_application.Services
             return applicationViewModels;
         }
 
-        public bool AddApplication(ApplicationFormViewModel application, string userId)
+        public bool AddApplication(ApplicationFormViewModel application)
         {
+            var userId = userService.GetUserId();
+
             var applicationEntity = new Application
             {
                 Email = application.Email,
@@ -79,9 +81,10 @@ namespace hr_application.Services
             return true;
         }
 
-        public bool EditApplication(Guid id, string userId, ApplicationFormViewModel application)
+        public bool EditApplication(Guid id, ApplicationFormViewModel application)
         {
             var foundApplication = hrContext.Applications.Find(id);
+            var userId = userService.GetUserId();
             if (foundApplication == null || foundApplication.UserId != userId)
                 return false;
 
@@ -103,9 +106,11 @@ namespace hr_application.Services
             return true;
         }
 
-        public bool DeleteApplication(Guid id, string userId)
+        public bool DeleteApplication(Guid id)
         {
             var application = hrContext.Applications.Find(id);
+            var userId = userService.GetUserId();
+
             if (application != null && application.UserId == userId)
             {
                 hrContext.Applications.Remove(application);
