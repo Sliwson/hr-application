@@ -125,6 +125,15 @@ namespace hr_application.Controllers
             return View(application);
         }
 
+        public IActionResult SetState(Guid id, [FromQuery(Name = "s")] int state)
+        {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
+            var actionResult = applicationService.ChangeApplicationState(id, state);
+            return ResolveServiceResult(actionResult);
+        }
+
         public IActionResult Delete(Guid id)
         {
             if (!userService.IsAuthenticated())
@@ -147,6 +156,8 @@ namespace hr_application.Controllers
                     return NotFound();
                 case ServiceResult.NotAuthorized:
                     return StatusCode(403);
+                case ServiceResult.ArgumentError:
+                    return StatusCode(422);
                 case ServiceResult.OK:
                 default:
                     return RedirectToAction("Index");

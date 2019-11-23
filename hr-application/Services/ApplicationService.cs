@@ -109,6 +109,25 @@ namespace hr_application.Services
             return ServiceResult.OK;
         }
 
+        public ServiceResult ChangeApplicationState(Guid id, int state)
+        {
+            var application = hrContext.Applications.Find(id);
+            if (application == null)
+                return ServiceResult.NotFound;
+
+            if (application.RelatedOffer.UserId != userService.GetUserId())
+                return ServiceResult.NotAuthorized;
+
+            if (!Enum.IsDefined(typeof(ApplicationState), state))
+                return ServiceResult.ArgumentError;
+
+            var applicationState = (ApplicationState)state;
+            application.State = applicationState;
+            hrContext.SaveChanges();
+
+            return ServiceResult.OK;
+        }
+
         public ServiceResult DeleteApplication(Guid id)
         {
             var application = hrContext.Applications.Find(id);

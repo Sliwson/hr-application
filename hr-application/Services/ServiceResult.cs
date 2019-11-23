@@ -9,6 +9,7 @@ namespace hr_application.Services
     {
         OK,
         NotAuthorized,
-        NotFound
+        NotFound,
+        ArgumentError
     }
 }
