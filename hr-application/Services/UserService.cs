@@ -79,6 +79,6 @@ namespace hr_application.Services
                 currentId = -1;
         }
 
-        private static int currentId = 2;
+        private static int currentId = 0;
     }
 }

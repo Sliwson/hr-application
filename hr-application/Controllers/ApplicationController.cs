@@ -27,17 +27,26 @@ namespace hr_application.Controllers
 
         public IActionResult Index()
         {
-            var applications = applicationService.GetAllApplications();
-            return View(applications);
+            var role = userService.GetUserRole();
+            if (role == UserRole.Admin)
+                return View(applicationService.GetAllApplications());
+            else if (role == UserRole.Hr)
+                return View(applicationService.GetHrUserApplications());
+            else if (role == UserRole.User)
+                return View(applicationService.GetUserApplications());
+            else
+                return NotFound();
         }
 
-        public IActionResult MyApplications()
+        public IActionResult Query([FromQuery(Name = "q")] string query)
         {
-            if (!userService.IsAuthenticated())
-                return RedirectToLogin();
-            
-            var userId = userService.GetUserId();
-            return View(applicationService.GetApplicaionsForUser(userId));
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
+            if (query == null)
+                query = "";
+
+            return View("Index", applicationService.GetHrUserApplicationsFiltered(query));
         }
 
         public IActionResult Create(Guid? id)

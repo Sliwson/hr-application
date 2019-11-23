@@ -13,26 +13,38 @@ namespace hr_application.Controllers
     {
         private readonly HrContext hrContext;
         private readonly JobOfferService jobOfferService;
+        private readonly IUserService userService;
 
-        public JobOfferController(HrContext hrContext, JobOfferService jobOfferService)
+        public JobOfferController(HrContext hrContext, JobOfferService jobOfferService, IUserService userService)
         {
             this.hrContext = hrContext;
             this.jobOfferService = jobOfferService;
+            this.userService = userService;
         }
 
         public IActionResult Index()
         {
-            return View(jobOfferService.GetAllJobOffers());
+            //TODO: separate views for different roles
+            if (userService.GetUserRole() == UserRole.Hr)
+                return View(jobOfferService.GetUserJobOffers());
+            else
+                return View(jobOfferService.GetAllJobOffers());
         }
 
         public IActionResult Create()
         {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
             return View();
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(JobOfferFormViewModel jobOffer)
         {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
             if (!ModelState.IsValid)
                 return View(jobOffer);
 
