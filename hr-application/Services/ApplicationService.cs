@@ -60,7 +60,7 @@ namespace hr_application.Services
             return applicationViewModels;
         }
 
-        public bool AddApplication(ApplicationFormViewModel application)
+        public ServiceResult AddApplication(ApplicationFormViewModel application)
         {
             var userId = userService.GetUserId();
 
@@ -78,15 +78,18 @@ namespace hr_application.Services
             hrContext.Applications.Add(applicationEntity);
             hrContext.SaveChanges();
 
-            return true;
+            return ServiceResult.OK;
         }
 
-        public bool EditApplication(Guid id, ApplicationFormViewModel application)
+        public ServiceResult EditApplication(Guid id, ApplicationFormViewModel application)
         {
             var foundApplication = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
-            if (foundApplication == null || foundApplication.UserId != userId)
-                return false;
+            
+            if (foundApplication == null)
+                return ServiceResult.NotFound;
+            if (foundApplication.UserId != userId)
+                return ServiceResult.NotAuthorized;
 
             var applicationEntity = new Application
             {
@@ -103,33 +106,34 @@ namespace hr_application.Services
             hrContext.Entry(foundApplication).CurrentValues.SetValues(applicationEntity);
             hrContext.SaveChanges();
 
-            return true;
+            return ServiceResult.OK;
         }
 
-        public bool DeleteApplication(Guid id)
+        public ServiceResult DeleteApplication(Guid id)
         {
             var application = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
 
-            if (application != null && application.UserId == userId)
-            {
-                hrContext.Applications.Remove(application);
-                hrContext.SaveChanges();
+            if (application == null)
+                return ServiceResult.NotFound;
 
-                return true;            
-            }
+            if (application.UserId != userId)
+                return ServiceResult.NotAuthorized;
+            
+            hrContext.Applications.Remove(application);
+            hrContext.SaveChanges();
 
-            return false;
+            return ServiceResult.OK;
         }
 
-        public bool FillJobOfferViewdata(Guid id, ViewDataDictionary viewData)
+        public ServiceResult FillJobOfferViewdata(Guid id, ViewDataDictionary viewData)
         {
             var jobOffer = hrContext.JobOffers.Find(id);
             if (jobOffer == null)
-                return false;
+                return ServiceResult.NotFound;
 
             viewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
-            return true;
+            return ServiceResult.OK;
         }
 
     }

@@ -54,7 +54,7 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            if (!applicationService.FillJobOfferViewdata(id.Value, ViewData))
+            if (applicationService.FillJobOfferViewdata(id.Value, ViewData) == ServiceResult.NotFound)
                 return NotFound();
 
             if (!userService.IsAuthenticated())
@@ -94,10 +94,13 @@ namespace hr_application.Controllers
 
             var application = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
-            if (application == null || application.UserId != userId)
-                return NotFound();
 
-            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
+            if (application == null)
+                return NotFound();
+            if (application.UserId != userId)
+                return StatusCode(403);
+
+            if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
                 return NotFound();
             
             return View(new ApplicationFormViewModel(application));
@@ -112,13 +115,11 @@ namespace hr_application.Controllers
 
             if (ModelState.IsValid)
             {
-                if (applicationService.EditApplication(id, application))
-                    return RedirectToAction("Index");
-                else
-                    return NotFound();
+                var actionResult = applicationService.EditApplication(id, application);
+                return ResolveServiceResult(actionResult);
             }
             
-            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
+            if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
                 return NotFound();
 
             return View(application);
@@ -129,15 +130,27 @@ namespace hr_application.Controllers
             if (!userService.IsAuthenticated())
                 return RedirectToLogin();
 
-            if (applicationService.DeleteApplication(id))
-                return RedirectToAction("Index");
-            else
-                return NotFound();
+            var actionResult = applicationService.DeleteApplication(id);
+            return ResolveServiceResult(actionResult);
         }
 
         private IActionResult RedirectToLogin()
         {
             return RedirectToAction(userService.GetRedirectToLoginAction(), userService.GetRedirectToLoginController());
+        }
+
+        private IActionResult ResolveServiceResult(ServiceResult result)
+        {
+            switch (result)
+            {
+                case ServiceResult.NotFound:
+                    return NotFound();
+                case ServiceResult.NotAuthorized:
+                    return StatusCode(403);
+                case ServiceResult.OK:
+                default:
+                    return RedirectToAction("Index");
+            }
         }
     }
 }
