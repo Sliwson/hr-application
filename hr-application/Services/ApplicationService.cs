@@ -69,7 +69,8 @@ namespace hr_application.Services
                 LastName = application.LastName,
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
-                UserId = userId
+                UserId = userId,
+                State = ApplicationState.Pending
             };
 
             hrContext.Applications.Add(applicationEntity);
@@ -92,7 +93,8 @@ namespace hr_application.Services
                 LastName = application.LastName,
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
-                UserId = foundApplication.UserId
+                UserId = foundApplication.UserId,
+                State = foundApplication.State
             };
 
             hrContext.Entry(foundApplication).CurrentValues.SetValues(applicationEntity);
