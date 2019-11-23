@@ -99,7 +99,8 @@ namespace hr_application.Services
                 hrContext.Applications.Remove(application);
                 hrContext.SaveChanges();
 
-                return true;            }
+                return true;            
+            }
 
             return false;
         }
