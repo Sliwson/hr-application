@@ -115,7 +115,10 @@ namespace hr_application.Services
             if (application == null)
                 return ServiceResult.NotFound;
 
-            if (application.RelatedOffer.UserId != userService.GetUserId())
+            var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
+            if (jobOffer == null)
+                return ServiceResult.NotFound;
+            if (jobOffer.UserId != userService.GetUserId())
                 return ServiceResult.NotAuthorized;
 
             if (!Enum.IsDefined(typeof(ApplicationState), state))

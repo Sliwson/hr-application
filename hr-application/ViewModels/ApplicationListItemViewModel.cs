@@ -15,6 +15,8 @@ namespace hr_application.ViewModels
             FirstName = application.FirstName;
             LastName = application.LastName;
             PhoneNumber = application.PhoneNumber;
+            State = application.State;
+
         }
 
         public Guid Id { get; set; }
@@ -25,5 +27,7 @@ namespace hr_application.ViewModels
         public string LastName { get; set; }
 
         public string PhoneNumber { get; set; }
+
+        public ApplicationState State { get; set; }
     }
 }

@@ -90,7 +90,7 @@ namespace hr_application.Controllers
                 return NotFound();
 
             if (userService.GetUserRole() != UserRole.User)
-                return RedirectToLogin();
+                return StatusCode(403);
 
             var application = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
