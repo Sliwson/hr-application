@@ -38,6 +38,17 @@ namespace hr_application.Controllers
                 return NotFound();
         }
 
+        public IActionResult Query([FromQuery(Name = "q")] string query)
+        {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
+            if (query == null)
+                query = "";
+
+            return View("Index", applicationService.GetHrUserApplicationsFiltered(query));
+        }
+
         public IActionResult Create(Guid? id)
         {
             if (id == null)

@@ -41,6 +41,16 @@ namespace hr_application.Services
             return ConvertToListItems(applications.ToList());
         }
 
+        public List<ApplicationListItemViewModel> GetHrUserApplicationsFiltered(string query)
+        {
+            var userId = userService.GetUserId();
+            var applications = from application in hrContext.Applications join offer in hrContext.JobOffers.Where(
+                               o => o.UserId == userId && o.JobTitle.ToLower().Contains(query.ToLower()))
+                               on application.RelatedOfferId equals offer.Id select application;
+
+            return ConvertToListItems(applications.ToList());
+        }
+
         private List<ApplicationListItemViewModel> ConvertToListItems(List<Application> applications)
         {
             var applicationViewModels = new List<ApplicationListItemViewModel>();
