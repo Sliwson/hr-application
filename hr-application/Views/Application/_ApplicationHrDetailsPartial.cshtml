@@ -1,0 +1,44 @@
+﻿@model hr_application.ViewModels.ApplicationDetailsHrViewModel
+
+<div class="card">
+    <div class="card-header">
+        <h4>@Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName)</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.PhoneNumber) 
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.PhoneNumber) 
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.State)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.State)
+            </dd>
+        </dl>
+        <div class="row">
+            @if (Model.State != ApplicationState.Pending)
+            {
+                <a class="btn btn-secondary ml-3" href="@Url.Action("SetState", "Application", new { id = Model.Id, s = 0 })">Set pending</a>
+            }
+            @if (Model.State != ApplicationState.Accepted)
+            {
+                <a class="btn btn-success ml-3" href="@Url.Action("SetState", "Application", new { id = Model.Id, s = 2 })">Accept</a>
+            }
+            @if (Model.State != ApplicationState.Rejected)
+            {
+                <a class="btn btn-warning ml-3" href="@Url.Action("SetState", "Application", new { id = Model.Id, s = 1 })">Reject</a>
+            }
+        </div>
+    </div>
+</div>
+                               
