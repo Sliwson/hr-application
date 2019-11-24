@@ -125,6 +125,24 @@ namespace hr_application.Controllers
             return View(application);
         }
 
+        public IActionResult HrDetails(Guid ?id)
+        {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
+            if (id == null)
+                return NotFound();
+
+            var application = hrContext.Applications.Find(id);
+            if (application == null)
+                return NotFound();
+
+            if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
+                return NotFound();
+
+            return View(new ApplicationDetailsHrViewModel(application));
+        }
+
         public IActionResult SetState(Guid id, [FromQuery(Name = "s")] int state)
         {
             if (userService.GetUserRole() != UserRole.Hr)
