@@ -1,0 +1,15 @@
+﻿@model hr_application.ViewModels.ApplicationDetailsHrViewModel
+
+@{
+    ViewData["Title"] = "Application details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Application details</h1>
+<hr />
+<div class="row mb-3">
+    <div class="col">
+        <partial name="_JobOfferDetailsPartial" />
+    </div>
+</div>
+<partial name="_ApplicationHrDetailsPartial"/>

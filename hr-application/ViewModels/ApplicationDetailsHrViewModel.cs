@@ -6,9 +6,9 @@ using hr_application.Models;
 
 namespace hr_application.ViewModels
 {
-    public class ApplicationListItemViewModel
+    public class ApplicationDetailsHrViewModel
     {
-        public ApplicationListItemViewModel(Application application)
+        public ApplicationDetailsHrViewModel(Application application)
         {
             Id = application.Id;
             Email = application.Email;

@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace hr_application.Models
 {
+    public enum ApplicationState
+    {
+        Pending,
+        Rejected,
+        Accepted
+    }
+
     public class Application
     {
         public Guid Id { get; set; }
@@ -21,6 +28,8 @@ namespace hr_application.Models
         public string PhoneNumber { get; set; }
 
         public string UserId { get; set; }
+
+        public ApplicationState State { get; set; }
 
         public Guid RelatedOfferId { get; set; }
         public JobOffer RelatedOffer { get; set; }

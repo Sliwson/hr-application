@@ -54,7 +54,7 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            if (!applicationService.FillJobOfferViewdata(id.Value, ViewData))
+            if (applicationService.FillJobOfferViewdata(id.Value, ViewData) == ServiceResult.NotFound)
                 return NotFound();
 
             if (!userService.IsAuthenticated())
@@ -67,7 +67,7 @@ namespace hr_application.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Create(ApplicationFormViewModel application)
         {
-            if (!userService.IsAuthenticated())
+            if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
 
             var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
@@ -80,8 +80,7 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            var userId = userService.GetUserId(); 
-            applicationService.AddApplication(application, userId);
+            applicationService.AddApplication(application);
             return RedirectToAction("Index");
         }
 
@@ -90,15 +89,20 @@ namespace hr_application.Controllers
             if (id == null)
                 return NotFound();
 
-            if (!userService.IsAuthenticated())
-                return RedirectToLogin();
+            if (userService.GetUserRole() != UserRole.User)
+                return StatusCode(403);
 
             var application = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
-            if (application == null || application.UserId != userId)
-                return NotFound();
 
-            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
+            if (application == null)
+                return NotFound();
+            if (application.UserId != userId)
+                return StatusCode(403);
+            if (application.State != ApplicationState.Pending)
+                return StatusCode(422);
+
+            if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
                 return NotFound();
             
             return View(new ApplicationFormViewModel(application));
@@ -108,22 +112,54 @@ namespace hr_application.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Guid id, ApplicationFormViewModel application)
         {
-            if (!userService.IsAuthenticated())
+            if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
 
             if (ModelState.IsValid)
             {
-                var userId = userService.GetUserId();
-                if (applicationService.EditApplication(id, userId, application))
-                    return RedirectToAction("Index");
-                else
-                    return NotFound();
+                var actionResult = applicationService.EditApplication(id, application);
+                return ResolveServiceResult(actionResult);
             }
             
-            if (!applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData))
+            if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
                 return NotFound();
 
             return View(application);
+        }
+
+        public IActionResult Details(Guid ?id)
+        {
+            if (userService.GetUserRole() == UserRole.Hr)
+                return HrDetails(id);
+
+            return NotFound();
+        }
+
+        private IActionResult HrDetails(Guid ?id)
+        {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
+            if (id == null)
+                return NotFound();
+
+            var application = hrContext.Applications.Find(id);
+            if (application == null)
+                return NotFound();
+
+            if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
+                return NotFound();
+
+            return View("HrDetails", new ApplicationDetailsHrViewModel(application));
+        }
+
+        public IActionResult SetState(Guid id, [FromQuery(Name = "s")] int state)
+        {
+            if (userService.GetUserRole() != UserRole.Hr)
+                return StatusCode(403);
+
+            var actionResult = applicationService.ChangeApplicationState(id, state);
+            return ResolveServiceResult(actionResult);
         }
 
         public IActionResult Delete(Guid id)
@@ -131,16 +167,29 @@ namespace hr_application.Controllers
             if (!userService.IsAuthenticated())
                 return RedirectToLogin();
 
-            var userId = userService.GetUserId();
-            if (applicationService.DeleteApplication(id, userId))
-                return RedirectToAction("Index");
-            else
-                return NotFound();
+            var actionResult = applicationService.DeleteApplication(id);
+            return ResolveServiceResult(actionResult);
         }
 
         private IActionResult RedirectToLogin()
         {
             return RedirectToAction(userService.GetRedirectToLoginAction(), userService.GetRedirectToLoginController());
+        }
+
+        private IActionResult ResolveServiceResult(ServiceResult result)
+        {
+            switch (result)
+            {
+                case ServiceResult.NotFound:
+                    return NotFound();
+                case ServiceResult.NotAuthorized:
+                    return StatusCode(403);
+                case ServiceResult.ArgumentError:
+                    return StatusCode(422);
+                case ServiceResult.OK:
+                default:
+                    return RedirectToAction("Index");
+            }
         }
     }
 }

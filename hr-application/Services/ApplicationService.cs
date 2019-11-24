@@ -60,8 +60,10 @@ namespace hr_application.Services
             return applicationViewModels;
         }
 
-        public bool AddApplication(ApplicationFormViewModel application, string userId)
+        public ServiceResult AddApplication(ApplicationFormViewModel application)
         {
+            var userId = userService.GetUserId();
+
             var applicationEntity = new Application
             {
                 Email = application.Email,
@@ -69,20 +71,27 @@ namespace hr_application.Services
                 LastName = application.LastName,
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
-                UserId = userId
+                UserId = userId,
+                State = ApplicationState.Pending
             };
 
             hrContext.Applications.Add(applicationEntity);
             hrContext.SaveChanges();
 
-            return true;
+            return ServiceResult.OK;
         }
 
-        public bool EditApplication(Guid id, string userId, ApplicationFormViewModel application)
+        public ServiceResult EditApplication(Guid id, ApplicationFormViewModel application)
         {
             var foundApplication = hrContext.Applications.Find(id);
-            if (foundApplication == null || foundApplication.UserId != userId)
-                return false;
+            var userId = userService.GetUserId();
+            
+            if (foundApplication == null)
+                return ServiceResult.NotFound;
+            if (foundApplication.UserId != userId)
+                return ServiceResult.NotAuthorized;
+            if (application.State != ApplicationState.Pending)
+                return StatusCode(422);
 
             var applicationEntity = new Application
             {
@@ -92,37 +101,63 @@ namespace hr_application.Services
                 LastName = application.LastName,
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
-                UserId = foundApplication.UserId
+                UserId = foundApplication.UserId,
+                State = foundApplication.State
             };
 
             hrContext.Entry(foundApplication).CurrentValues.SetValues(applicationEntity);
             hrContext.SaveChanges();
 
-            return true;
+            return ServiceResult.OK;
         }
 
-        public bool DeleteApplication(Guid id, string userId)
+        public ServiceResult ChangeApplicationState(Guid id, int state)
         {
             var application = hrContext.Applications.Find(id);
-            if (application != null && application.UserId == userId)
-            {
-                hrContext.Applications.Remove(application);
-                hrContext.SaveChanges();
+            if (application == null)
+                return ServiceResult.NotFound;
 
-                return true;            
-            }
+            var jobOffer = hrContext.JobOffers.Find(application.RelatedOfferId);
+            if (jobOffer == null)
+                return ServiceResult.NotFound;
+            if (jobOffer.UserId != userService.GetUserId())
+                return ServiceResult.NotAuthorized;
 
-            return false;
+            if (!Enum.IsDefined(typeof(ApplicationState), state))
+                return ServiceResult.ArgumentError;
+
+            var applicationState = (ApplicationState)state;
+            application.State = applicationState;
+            hrContext.SaveChanges();
+
+            return ServiceResult.OK;
         }
 
-        public bool FillJobOfferViewdata(Guid id, ViewDataDictionary viewData)
+        public ServiceResult DeleteApplication(Guid id)
+        {
+            var application = hrContext.Applications.Find(id);
+            var userId = userService.GetUserId();
+
+            if (application == null)
+                return ServiceResult.NotFound;
+
+            if (application.UserId != userId)
+                return ServiceResult.NotAuthorized;
+            
+            hrContext.Applications.Remove(application);
+            hrContext.SaveChanges();
+
+            return ServiceResult.OK;
+        }
+
+        public ServiceResult FillJobOfferViewdata(Guid id, ViewDataDictionary viewData)
         {
             var jobOffer = hrContext.JobOffers.Find(id);
             if (jobOffer == null)
-                return false;
+                return ServiceResult.NotFound;
 
             viewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
-            return true;
+            return ServiceResult.OK;
         }
 
     }
