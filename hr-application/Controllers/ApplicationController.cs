@@ -99,6 +99,8 @@ namespace hr_application.Controllers
                 return NotFound();
             if (application.UserId != userId)
                 return StatusCode(403);
+            if (application.State != ApplicationState.Pending)
+                return StatusCode(422);
 
             if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
                 return NotFound();
@@ -148,7 +150,7 @@ namespace hr_application.Controllers
             if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
                 return NotFound();
 
-            return View(new ApplicationDetailsHrViewModel(application));
+            return View("HrDetails", new ApplicationDetailsHrViewModel(application));
         }
 
         public IActionResult SetState(Guid id, [FromQuery(Name = "s")] int state)
