@@ -125,7 +125,15 @@ namespace hr_application.Controllers
             return View(application);
         }
 
-        public IActionResult HrDetails(Guid ?id)
+        public IActionResult Details(Guid ?id)
+        {
+            if (userService.GetUserRole() == UserRole.Hr)
+                return HrDetails(id);
+
+            return NotFound();
+        }
+
+        private IActionResult HrDetails(Guid ?id)
         {
             if (userService.GetUserRole() != UserRole.Hr)
                 return StatusCode(403);
