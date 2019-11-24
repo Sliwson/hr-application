@@ -90,8 +90,8 @@ namespace hr_application.Services
                 return ServiceResult.NotFound;
             if (foundApplication.UserId != userId)
                 return ServiceResult.NotAuthorized;
-            if (application.State != ApplicationState.Pending)
-                return StatusCode(422);
+            if (foundApplication.State != ApplicationState.Pending)
+                return ServiceResult.ArgumentError;
 
             var applicationEntity = new Application
             {
