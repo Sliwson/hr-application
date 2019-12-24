@@ -65,7 +65,7 @@ namespace hr_application.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Create(ApplicationFormViewModel application)
+        public async Task<IActionResult> Create(ApplicationFormViewModel application)
         {
             if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
@@ -80,7 +80,7 @@ namespace hr_application.Controllers
                 return View(application);
             }
 
-            applicationService.AddApplication(application);
+            await applicationService.AddApplication(application);
             return RedirectToAction("Index");
         }
 
@@ -127,15 +127,15 @@ namespace hr_application.Controllers
             return View(application);
         }
 
-        public IActionResult Details(Guid ?id)
+        public async Task<IActionResult> Details(Guid ?id)
         {
             if (userService.GetUserRole() == UserRole.Hr)
-                return HrDetails(id);
+                return await HrDetails(id);
 
             return NotFound();
         }
 
-        private IActionResult HrDetails(Guid ?id)
+        private async Task<IActionResult> HrDetails(Guid ?id)
         {
             if (userService.GetUserRole() != UserRole.Hr)
                 return StatusCode(403);
@@ -150,7 +150,8 @@ namespace hr_application.Controllers
             if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
                 return NotFound();
 
-            return View("HrDetails", new ApplicationDetailsHrViewModel(application));
+            var model = await applicationService.GetHrDetails(application);
+            return View("HrDetails", model);
         }
 
         public IActionResult SetState(Guid id, [FromQuery(Name = "s")] int state)

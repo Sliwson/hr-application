@@ -12,11 +12,13 @@ namespace hr_application.Services
     {
         private readonly HrContext hrContext;
         private readonly IUserService userService;
+        private readonly StorageService storageService;
 
-        public ApplicationService(HrContext context, IUserService userService)
+        public ApplicationService(HrContext context, IUserService userService, StorageService storageService)
         {
             hrContext = context;
             this.userService = userService;
+            this.storageService = storageService;
         }
 
         public List<ApplicationListItemViewModel> GetAllApplications()
@@ -60,9 +62,10 @@ namespace hr_application.Services
             return applicationViewModels;
         }
 
-        public ServiceResult AddApplication(ApplicationFormViewModel application)
+        public async Task<ServiceResult> AddApplication(ApplicationFormViewModel application)
         {
             var userId = userService.GetUserId();
+            string cvPath = await storageService.StoreFile(application.CVFile);
 
             var applicationEntity = new Application
             {
@@ -72,8 +75,12 @@ namespace hr_application.Services
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
                 UserId = userId,
-                State = ApplicationState.Pending
+                State = ApplicationState.Pending,
+                CvGuid = cvPath
             };
+
+            if (application.CoverLetterFile != null)
+                applicationEntity.CoverLetterGuid = await storageService.StoreFile(application.CoverLetterFile);
 
             hrContext.Applications.Add(applicationEntity);
             hrContext.SaveChanges();
@@ -148,6 +155,23 @@ namespace hr_application.Services
             hrContext.SaveChanges();
 
             return ServiceResult.OK;
+        }
+
+        public async Task<ApplicationDetailsHrViewModel> GetHrDetails(Application application)
+        {
+            var model = new ApplicationDetailsHrViewModel(application);
+
+            if (application.CvGuid != null && application.CvGuid.Length > 0)
+                model.CvUrl = await storageService.GetDownloadUrl(application.CvGuid);
+            else
+                model.CvUrl = null;
+
+            if (application.CoverLetterGuid != null && application.CoverLetterGuid.Length > 0)
+                model.CoverLetterUrl = await storageService.GetDownloadUrl(application.CoverLetterGuid);
+            else
+                model.CvUrl = null;
+
+            return model;
         }
 
         public ServiceResult FillJobOfferViewdata(Guid id, ViewDataDictionary viewData)
