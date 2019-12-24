@@ -31,6 +31,10 @@ namespace hr_application.Models
 
         public ApplicationState State { get; set; }
 
+        public string CvGuid { get; set; }
+
+        public string CoverLetterGuid { get; set; }
+
         public Guid RelatedOfferId { get; set; }
         public JobOffer RelatedOffer { get; set; }
     }

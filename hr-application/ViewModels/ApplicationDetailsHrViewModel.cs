@@ -28,6 +28,10 @@ namespace hr_application.ViewModels
 
         public string PhoneNumber { get; set; }
 
+        public string CvUrl { get; set; }
+
+        public string CoverLetterUrl { get; set; }
+
         public ApplicationState State { get; set; }
     }
 }
