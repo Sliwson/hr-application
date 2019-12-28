@@ -29,6 +29,8 @@ namespace hr_application.Controllers
 
         public IActionResult Index()
         {
+            applicationService.SetRoleApplicationViewData(ViewData);
+
             var role = userService.GetUserRole();
             if (role == UserRole.Admin)
                 return View(applicationService.GetAllApplications());
@@ -37,7 +39,7 @@ namespace hr_application.Controllers
             else if (role == UserRole.User)
                 return View(applicationService.GetUserApplications());
             else
-                return NotFound();
+                return RedirectToLogin();
         }
 
         public IActionResult Query([FromQuery(Name = "q")] string query)
@@ -112,14 +114,14 @@ namespace hr_application.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, ApplicationFormViewModel application)
+        public async Task<IActionResult> Edit(Guid id, ApplicationFormViewModel application)
         {
             if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
 
             if (ModelState.IsValid)
             {
-                var actionResult = applicationService.EditApplication(id, application);
+                var actionResult = await applicationService.EditApplication(id, application);
                 return ResolveServiceResult(actionResult);
             }
             

@@ -91,7 +91,7 @@ namespace hr_application.Services
             return ServiceResult.OK;
         }
 
-        public ServiceResult EditApplication(Guid id, ApplicationFormViewModel application)
+        public async Task<ServiceResult> EditApplication(Guid id, ApplicationFormViewModel application)
         {
             var foundApplication = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
@@ -103,6 +103,8 @@ namespace hr_application.Services
             if (foundApplication.State != ApplicationState.Pending)
                 return ServiceResult.ArgumentError;
 
+            string cvPath = await storageService.StoreFile(application.CVFile);
+
             var applicationEntity = new Application
             {
                 Id = foundApplication.Id,
@@ -112,8 +114,13 @@ namespace hr_application.Services
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
                 UserId = foundApplication.UserId,
-                State = foundApplication.State
+                State = foundApplication.State,
+                CvGuid = cvPath,
+                CoverLetterGuid = foundApplication.CoverLetterGuid
             };
+            
+            if (application.CoverLetterFile != null)
+                applicationEntity.CoverLetterGuid = await storageService.StoreFile(application.CoverLetterFile);
 
             hrContext.Entry(foundApplication).CurrentValues.SetValues(applicationEntity);
             hrContext.SaveChanges();
@@ -186,6 +193,21 @@ namespace hr_application.Services
             viewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
             return ServiceResult.OK;
         }
-
+        
+        public void SetRoleApplicationViewData(ViewDataDictionary viewData)
+        {
+            viewData["ButtonsPartialName"] = GetButtonsPartialString();
+        }
+        
+        private string GetButtonsPartialString()
+        {
+            var role = userService.GetUserRole();
+            if (role == UserRole.User)
+                return "_ApplicationButtonsUser";
+            else if (role == UserRole.Hr)
+                return "_ApplicationButtonsHr";
+            else
+                return null;
+        }
     }
 }
