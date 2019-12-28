@@ -28,22 +28,14 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                  <partial name="_LoginPartial" />
-                 <ul class="navbar-nav flex-grow-1">
-                     <li class="nav-item">
-                         <a class="nav-link text-dark" asp-area="" asp-controller="JobOffer" asp-action="Index">JobOffers</a>
-                     </li>
-                     <li class="nav-item">
-                         <a class="nav-link text-dark" asp-area="" asp-controller="Application" asp-action="Index">Applications</a>
-                     </li>
-                     <environment include="Development">
+                     <ul class="navbar-nav flex-grow-1">
                          <li class="nav-item">
-                             <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Login">Admin</a>
+                             <a class="nav-link text-dark" asp-area="" asp-controller="JobOffer" asp-action="Index">JobOffers</a>
                          </li>
                          <li class="nav-item">
-                             <a class="nav-link text-dark" asp-area="" asp-controller="Hr" asp-action="Login">Hr</a>
+                             <a class="nav-link text-dark" asp-area="" asp-controller="Application" asp-action="Index">Applications</a>
                          </li>
-                     </environment>
-                 </ul>
+                     </ul>
                 </div>
             </div>
         </nav>
