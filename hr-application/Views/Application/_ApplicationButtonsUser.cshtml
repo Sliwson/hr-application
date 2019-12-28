@@ -1,0 +1,8 @@
+﻿@using hr_application.ViewModels
+@model ApplicationListItemViewModel 
+
+@if (Model.State == ApplicationState.Pending)
+{
+    <a class="btn btn-warning" href="@Url.Action("Edit", "Application", new { id = Model.Id})">Edit</a>
+    <a class="btn btn-danger" href="@Url.Action("Delete", "Application", new { id = Model.Id})">Delete</a>
+}

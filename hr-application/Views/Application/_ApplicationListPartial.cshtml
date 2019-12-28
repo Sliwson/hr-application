@@ -41,15 +41,12 @@
                     @Html.DisplayFor(modelItem => item.State)
                 </td>
                 <td>
-                    @if (item.State == ApplicationState.Pending)
+                    @if(ViewData["ButtonsPartialName"] != null)
                     {
-                        <a class="btn btn-warning ml-3" href="@Url.Action("Edit", "Application", new { id = item.Id})">Edit</a>
+                        @await Html.PartialAsync(ViewData["ButtonsPartialName"] as string, item)
                     }
-                    <a class="btn btn-primary ml-3" href="@Url.Action("Details", "Application", new { id = item.Id})">Details</a>
-                    <a class="btn btn-danger ml-3" href="@Url.Action("Delete", "Application", new { id = item.Id})">Delete</a>
-                    </td>
-    
-                </tr>
+               </td>
+            </tr>
         }
     </tbody>
 </table>
