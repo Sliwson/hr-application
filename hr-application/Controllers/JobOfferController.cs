@@ -24,7 +24,8 @@ namespace hr_application.Controllers
 
         public IActionResult Index()
         {
-            //TODO: separate views for different roles
+            jobOfferService.SetRoleJobOfferViewData(ViewData);
+
             if (userService.GetUserRole() == UserRole.Hr)
                 return View(jobOfferService.GetUserJobOffers());
             else
@@ -60,6 +61,8 @@ namespace hr_application.Controllers
             var offer = hrContext.JobOffers.Find(id);
             if (offer == null)
                 return NotFound();
+
+            jobOfferService.SetRoleJobOfferViewData(ViewData);
 
             ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(offer);
             return View();

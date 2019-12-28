@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using hr_application.Models;
 using hr_application.ViewModels;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace hr_application.Services
 {
@@ -106,7 +107,8 @@ namespace hr_application.Services
                 MaximumSalary = jobOffer.MaximumSalary,
                 Location = jobOffer.Location,
                 ExpirationDate = jobOffer.ExpirationDate,
-                Applications = foundOffer.Applications
+                Applications = foundOffer.Applications,
+                UserId = foundOffer.UserId
             };
 
             hrContext.Entry(foundOffer).CurrentValues.SetValues(editModel);
@@ -128,6 +130,31 @@ namespace hr_application.Services
             hrContext.SaveChanges();
 
             return true; 
+        }
+
+        public void SetRoleJobOfferViewData(ViewDataDictionary viewData)
+        {
+            viewData["BeforePartialName"] = GetBeforePartialString();
+            viewData["ButtonsPartialName"] = GetButtonsPartialString();
+        }
+
+        private string GetBeforePartialString()
+        {
+            if (userService.GetUserRole() == UserRole.Hr)
+                return "_JobOfferIndexAddButton";
+            else
+                return null;
+        }
+        
+        private string GetButtonsPartialString()
+        {
+            var role = userService.GetUserRole();
+            if (role == UserRole.User)
+                return "_JobOfferButtonsUser";
+            else if (role == UserRole.Hr)
+                return "_JobOfferButtonsHr";
+            else
+                return null;
         }
     }
 }
