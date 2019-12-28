@@ -45,6 +45,9 @@ namespace hr_application.Services
 
         public List<ApplicationListItemViewModel> GetHrUserApplicationsFiltered(string query)
         {
+            if (query == null)
+                query = "";
+            
             var userId = userService.GetUserId();
             var applications = from application in hrContext.Applications join offer in hrContext.JobOffers.Where(
                                o => o.UserId == userId && o.JobTitle.ToLower().Contains(query.ToLower()))

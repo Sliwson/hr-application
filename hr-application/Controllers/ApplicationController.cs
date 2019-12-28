@@ -16,12 +16,14 @@ namespace hr_application.Controllers
     {
         private readonly HrContext hrContext;
         private readonly ApplicationService applicationService;
+        private readonly JobOfferService jobOfferService;
         private readonly IUserService userService;
 
-        public ApplicationController(HrContext hrContext, ApplicationService applicationService, IUserService userService)
+        public ApplicationController(HrContext hrContext, ApplicationService applicationService, JobOfferService jobOfferService, IUserService userService)
         {
             this.hrContext = hrContext;
             this.applicationService = applicationService;
+            this.jobOfferService = jobOfferService;
             this.userService = userService;
         }
 
@@ -43,9 +45,6 @@ namespace hr_application.Controllers
             if (userService.GetUserRole() != UserRole.Hr)
                 return StatusCode(403);
 
-            if (query == null)
-                query = "";
-
             return View("Index", applicationService.GetHrUserApplicationsFiltered(query));
         }
 
@@ -59,6 +58,9 @@ namespace hr_application.Controllers
 
             if (!userService.IsAuthenticated())
                 return RedirectToLogin();
+
+            if (jobOfferService.IsJobOfferOutdated(id.Value))
+                return View("Outdated");
 
             var application = new ApplicationFormViewModel { RelatedOfferId = id.Value };
             return View(application);

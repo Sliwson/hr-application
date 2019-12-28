@@ -156,5 +156,14 @@ namespace hr_application.Services
             else
                 return null;
         }
+        
+        public bool IsJobOfferOutdated(Guid id)
+        {
+            var jobOffer = hrContext.JobOffers.Find(id);
+            if (jobOffer == null)
+                return true;
+
+            return jobOffer.ExpirationDate < DateTime.Now;
+        }
     }
 }
