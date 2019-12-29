@@ -45,11 +45,20 @@ namespace hr_application.Services
 
         public List<ApplicationListItemViewModel> GetHrUserApplicationsFiltered(string query)
         {
+            if (query == null)
+                query = "";
+            
             var userId = userService.GetUserId();
             var applications = from application in hrContext.Applications join offer in hrContext.JobOffers.Where(
                                o => o.UserId == userId && o.JobTitle.ToLower().Contains(query.ToLower()))
                                on application.RelatedOfferId equals offer.Id select application;
 
+            return ConvertToListItems(applications.ToList());
+        }
+
+        public List<ApplicationListItemViewModel> GetApplicationsForJobOffer(Guid id)
+        {
+            var applications = hrContext.Applications.Where(a => a.RelatedOfferId == id); 
             return ConvertToListItems(applications.ToList());
         }
 
@@ -69,6 +78,7 @@ namespace hr_application.Services
 
             var applicationEntity = new Application
             {
+                Version = application.Version,
                 Email = application.Email,
                 FirstName = application.FirstName,
                 LastName = application.LastName,
@@ -88,7 +98,7 @@ namespace hr_application.Services
             return ServiceResult.OK;
         }
 
-        public ServiceResult EditApplication(Guid id, ApplicationFormViewModel application)
+        public async Task<ServiceResult> EditApplication(Guid id, ApplicationFormViewModel application)
         {
             var foundApplication = hrContext.Applications.Find(id);
             var userId = userService.GetUserId();
@@ -99,18 +109,28 @@ namespace hr_application.Services
                 return ServiceResult.NotAuthorized;
             if (foundApplication.State != ApplicationState.Pending)
                 return ServiceResult.ArgumentError;
+            if (foundApplication.Version != application.Version)
+                return ServiceResult.SimultanousEdit;
+
+            string cvPath = await storageService.StoreFile(application.CVFile);
 
             var applicationEntity = new Application
             {
                 Id = foundApplication.Id,
+                Version = foundApplication.Version + 1,
                 Email = application.Email,
                 FirstName = application.FirstName,
                 LastName = application.LastName,
                 PhoneNumber = application.PhoneNumber,
                 RelatedOfferId = application.RelatedOfferId,
                 UserId = foundApplication.UserId,
-                State = foundApplication.State
+                State = foundApplication.State,
+                CvGuid = cvPath,
+                CoverLetterGuid = foundApplication.CoverLetterGuid
             };
+            
+            if (application.CoverLetterFile != null)
+                applicationEntity.CoverLetterGuid = await storageService.StoreFile(application.CoverLetterFile);
 
             hrContext.Entry(foundApplication).CurrentValues.SetValues(applicationEntity);
             hrContext.SaveChanges();
@@ -183,6 +203,21 @@ namespace hr_application.Services
             viewData["JobOfferDetails"] = new JobOfferDetailsViewModel(jobOffer);
             return ServiceResult.OK;
         }
-
+        
+        public void SetRoleApplicationViewData(ViewDataDictionary viewData)
+        {
+            viewData["ButtonsPartialName"] = GetButtonsPartialString();
+        }
+        
+        private string GetButtonsPartialString()
+        {
+            var role = userService.GetUserRole();
+            if (role == UserRole.User)
+                return "_ApplicationButtonsUser";
+            else if (role == UserRole.Hr)
+                return "_ApplicationButtonsHr";
+            else
+                return null;
+        }
     }
 }

@@ -4,17 +4,28 @@ using System.Linq;
 using System.Threading.Tasks;
 using hr_application.Models;
 using hr_application.ViewModels;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace hr_application.Services
 {
     public class JobOfferService
     {
         private readonly HrContext hrContext;
+        private readonly ApplicationService applicationService;
         private readonly IUserService userService;
     
-        public JobOfferService(HrContext hrContext, IUserService userService)
+        public enum JobOfferDeleteResult 
+        {
+            OK,
+            NotFound,
+            NotAuthorized,
+            ApplicationsPresent
+        }
+
+        public JobOfferService(HrContext hrContext, ApplicationService applicationService, IUserService userService)
         {
             this.hrContext = hrContext;
+            this.applicationService = applicationService;
             this.userService = userService;
         }
 
@@ -49,6 +60,7 @@ namespace hr_application.Services
 
             var jobOfferModel = new JobOffer
             {
+                Version = 0,
                 Description = jobOffer.Description,
                 ExpirationDate = jobOffer.ExpirationDate,
                 JobTitle = jobOffer.JobTitle,
@@ -77,6 +89,7 @@ namespace hr_application.Services
 
             var editOffer = new JobOfferFormViewModel
             {
+                Version = offer.Version,
                 Description = offer.Description,
                 JobTitle = offer.JobTitle,
                 MaximumSalary = offer.MaximumSalary,
@@ -97,16 +110,21 @@ namespace hr_application.Services
             if (userService.GetUserId() != foundOffer.UserId)
                 return false;
 
+            if (jobOffer.Version != foundOffer.Version)
+                return false;
+
             var editModel = new JobOffer
             {
                 Id = foundOffer.Id,
+                Version = foundOffer.Version + 1,
                 Description = jobOffer.Description,
                 JobTitle = jobOffer.JobTitle,
                 MinimumSalary = jobOffer.MinimumSalary,
                 MaximumSalary = jobOffer.MaximumSalary,
                 Location = jobOffer.Location,
                 ExpirationDate = jobOffer.ExpirationDate,
-                Applications = foundOffer.Applications
+                Applications = foundOffer.Applications,
+                UserId = foundOffer.UserId
             };
 
             hrContext.Entry(foundOffer).CurrentValues.SetValues(editModel);
@@ -115,19 +133,56 @@ namespace hr_application.Services
             return true;
         }
 
-        public bool DeleteJobOffer(Guid id)
+        public JobOfferDeleteResult DeleteJobOffer(Guid id)
         {
             var offer = hrContext.JobOffers.Find(id);
             if (offer == null)
-                return false;
+                return JobOfferDeleteResult.OK;
 
             if (userService.GetUserId() != offer.UserId)
-                return false;
+                return JobOfferDeleteResult.NotAuthorized;
+
+            if (applicationService.GetApplicationsForJobOffer(id).Count > 0)
+                return JobOfferDeleteResult.ApplicationsPresent;
             
             hrContext.Remove(offer);
             hrContext.SaveChanges();
 
-            return true; 
+            return JobOfferDeleteResult.OK; 
+        }
+
+        public void SetRoleJobOfferViewData(ViewDataDictionary viewData)
+        {
+            viewData["BeforePartialName"] = GetBeforePartialString();
+            viewData["ButtonsPartialName"] = GetButtonsPartialString();
+        }
+
+        private string GetBeforePartialString()
+        {
+            if (userService.GetUserRole() == UserRole.Hr)
+                return "_JobOfferIndexAddButton";
+            else
+                return null;
+        }
+        
+        private string GetButtonsPartialString()
+        {
+            var role = userService.GetUserRole();
+            if (role == UserRole.User)
+                return "_JobOfferButtonsUser";
+            else if (role == UserRole.Hr)
+                return "_JobOfferButtonsHr";
+            else
+                return null;
+        }
+        
+        public bool IsJobOfferOutdated(Guid id)
+        {
+            var jobOffer = hrContext.JobOffers.Find(id);
+            if (jobOffer == null)
+                return true;
+
+            return jobOffer.ExpirationDate < DateTime.Now;
         }
     }
 }

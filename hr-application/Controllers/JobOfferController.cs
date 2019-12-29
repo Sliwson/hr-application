@@ -13,18 +13,21 @@ namespace hr_application.Controllers
     {
         private readonly HrContext hrContext;
         private readonly JobOfferService jobOfferService;
+        private readonly ApplicationService applicationService;
         private readonly IUserService userService;
 
-        public JobOfferController(HrContext hrContext, JobOfferService jobOfferService, IUserService userService)
+        public JobOfferController(HrContext hrContext, JobOfferService jobOfferService, ApplicationService applicationService, IUserService userService)
         {
             this.hrContext = hrContext;
             this.jobOfferService = jobOfferService;
+            this.applicationService = applicationService;
             this.userService = userService;
         }
 
         public IActionResult Index()
         {
-            //TODO: separate views for different roles
+            jobOfferService.SetRoleJobOfferViewData(ViewData);
+
             if (userService.GetUserRole() == UserRole.Hr)
                 return View(jobOfferService.GetUserJobOffers());
             else
@@ -61,6 +64,8 @@ namespace hr_application.Controllers
             if (offer == null)
                 return NotFound();
 
+            jobOfferService.SetRoleJobOfferViewData(ViewData);
+
             ViewData["JobOfferDetails"] = new JobOfferDetailsViewModel(offer);
             return View();
         }
@@ -83,7 +88,10 @@ namespace hr_application.Controllers
                 if (jobOfferService.EditOffer(id, jobOffer))
                     return RedirectToAction("Index");
                 else
+                {
+                    ModelState.AddModelError(String.Empty, "Entry already edited");
                     return View(jobOffer);
+                }
             }
 
             return View(jobOffer);
@@ -91,10 +99,20 @@ namespace hr_application.Controllers
 
         public IActionResult Delete(Guid id)
         {
-            if (jobOfferService.DeleteJobOffer(id))
+            var result = jobOfferService.DeleteJobOffer(id);
+            if (result == JobOfferService.JobOfferDeleteResult.OK)
                 return RedirectToAction("Index");
-            else
+            else if (result == JobOfferService.JobOfferDeleteResult.NotFound)
                 return NotFound();
+            else if (result == JobOfferService.JobOfferDeleteResult.NotAuthorized)
+                return StatusCode(403);
+            else if (result == JobOfferService.JobOfferDeleteResult.ApplicationsPresent)
+            {
+                applicationService.FillJobOfferViewdata(id, ViewData);
+                return View("JobOfferApplicationsError");
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

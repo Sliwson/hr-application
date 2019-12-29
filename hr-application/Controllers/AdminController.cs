@@ -25,16 +25,12 @@ namespace hr_application.Controllers
         }
 
         /* DEBUG CODE */
+#if DEBUG
         public IActionResult Login()
         {
             userService.AuthenticateAs(UserRole.Admin);
             return RedirectToAction("Index");
         }
-        
-        public IActionResult Logout()
-        {
-            userService.AuthenticateAs(UserRole.NoAuth);
-            return RedirectToAction("Index");
-        }
+#endif
     }
 }

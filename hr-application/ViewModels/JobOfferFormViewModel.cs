@@ -8,6 +8,8 @@ namespace hr_application.ViewModels
 {
     public class JobOfferFormViewModel : IValidatableObject
     {
+        public int Version { get; set; }
+
         [Required]
         [StringLength(60)]
         public string JobTitle { get; set; }

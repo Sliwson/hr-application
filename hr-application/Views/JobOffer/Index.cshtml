@@ -7,9 +7,10 @@
 
 <h1>Job offers</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (ViewData["BeforePartialName"] != null) 
+{
+    <partial name="@ViewData["BeforePartialName"]"/>
+}
 
 <table class="table">
     <thead>
@@ -46,9 +47,11 @@
                 @Html.DisplayFor(modelItem => item.ExpirationDate)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { item.Id }) |
-                @Html.ActionLink("Details", "Details", new { item.Id }) |
-                @Html.ActionLink("Delete", "Delete", new { item.Id })
+                <a class="btn btn-primary" href="@Url.Action("Details", "JobOffer", new { Id = item.Id})">Details</a>
+                @if(ViewData["ButtonsPartialName"] != null)
+                {
+                    @await Html.PartialAsync(ViewData["ButtonsPartialName"] as string, item.Id)
+                }
             </td>
         </tr>
 }

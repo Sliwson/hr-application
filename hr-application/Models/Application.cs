@@ -18,6 +18,7 @@ namespace hr_application.Models
     public class Application
     {
         public Guid Id { get; set; }
+        public int Version { get; set; }
 
         public string Email { get; set; }
 

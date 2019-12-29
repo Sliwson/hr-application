@@ -16,17 +16,21 @@ namespace hr_application.Controllers
     {
         private readonly HrContext hrContext;
         private readonly ApplicationService applicationService;
+        private readonly JobOfferService jobOfferService;
         private readonly IUserService userService;
 
-        public ApplicationController(HrContext hrContext, ApplicationService applicationService, IUserService userService)
+        public ApplicationController(HrContext hrContext, ApplicationService applicationService, JobOfferService jobOfferService, IUserService userService)
         {
             this.hrContext = hrContext;
             this.applicationService = applicationService;
+            this.jobOfferService = jobOfferService;
             this.userService = userService;
         }
 
         public IActionResult Index()
         {
+            applicationService.SetRoleApplicationViewData(ViewData);
+
             var role = userService.GetUserRole();
             if (role == UserRole.Admin)
                 return View(applicationService.GetAllApplications());
@@ -35,16 +39,13 @@ namespace hr_application.Controllers
             else if (role == UserRole.User)
                 return View(applicationService.GetUserApplications());
             else
-                return NotFound();
+                return RedirectToLogin();
         }
 
         public IActionResult Query([FromQuery(Name = "q")] string query)
         {
             if (userService.GetUserRole() != UserRole.Hr)
                 return StatusCode(403);
-
-            if (query == null)
-                query = "";
 
             return View("Index", applicationService.GetHrUserApplicationsFiltered(query));
         }
@@ -59,6 +60,9 @@ namespace hr_application.Controllers
 
             if (!userService.IsAuthenticated())
                 return RedirectToLogin();
+
+            if (jobOfferService.IsJobOfferOutdated(id.Value))
+                return View("Outdated");
 
             var application = new ApplicationFormViewModel { RelatedOfferId = id.Value };
             return View(application);
@@ -110,15 +114,18 @@ namespace hr_application.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, ApplicationFormViewModel application)
+        public async Task<IActionResult> Edit(Guid id, ApplicationFormViewModel application)
         {
             if (userService.GetUserRole() != UserRole.User)
                 return RedirectToLogin();
 
             if (ModelState.IsValid)
             {
-                var actionResult = applicationService.EditApplication(id, application);
-                return ResolveServiceResult(actionResult);
+                var actionResult = await applicationService.EditApplication(id, application);
+                if (actionResult == ServiceResult.SimultanousEdit)
+                    ModelState.AddModelError(String.Empty, "Entry already edited");
+                else
+                    return ResolveServiceResult(actionResult);
             }
             
             if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)
