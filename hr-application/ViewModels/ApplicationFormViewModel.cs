@@ -18,7 +18,10 @@ namespace hr_application.ViewModels
             LastName = application.LastName;
             PhoneNumber = application.PhoneNumber;
             RelatedOfferId = application.RelatedOfferId;
+            Version = application.Version;
         }
+
+        public int Version { get; set; }
 
         [Required]
         [StringLength(200)]
