@@ -11,11 +11,21 @@ namespace hr_application.Services
     public class JobOfferService
     {
         private readonly HrContext hrContext;
+        private readonly ApplicationService applicationService;
         private readonly IUserService userService;
     
-        public JobOfferService(HrContext hrContext, IUserService userService)
+        public enum JobOfferDeleteResult 
+        {
+            OK,
+            NotFound,
+            NotAuthorized,
+            ApplicationsPresent
+        }
+
+        public JobOfferService(HrContext hrContext, ApplicationService applicationService, IUserService userService)
         {
             this.hrContext = hrContext;
+            this.applicationService = applicationService;
             this.userService = userService;
         }
 
@@ -123,19 +133,22 @@ namespace hr_application.Services
             return true;
         }
 
-        public bool DeleteJobOffer(Guid id)
+        public JobOfferDeleteResult DeleteJobOffer(Guid id)
         {
             var offer = hrContext.JobOffers.Find(id);
             if (offer == null)
-                return false;
+                return JobOfferDeleteResult.OK;
 
             if (userService.GetUserId() != offer.UserId)
-                return false;
+                return JobOfferDeleteResult.NotAuthorized;
+
+            if (applicationService.GetApplicationsForJobOffer(id).Count > 0)
+                return JobOfferDeleteResult.ApplicationsPresent;
             
             hrContext.Remove(offer);
             hrContext.SaveChanges();
 
-            return true; 
+            return JobOfferDeleteResult.OK; 
         }
 
         public void SetRoleJobOfferViewData(ViewDataDictionary viewData)

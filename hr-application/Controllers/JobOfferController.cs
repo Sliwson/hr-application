@@ -13,12 +13,14 @@ namespace hr_application.Controllers
     {
         private readonly HrContext hrContext;
         private readonly JobOfferService jobOfferService;
+        private readonly ApplicationService applicationService;
         private readonly IUserService userService;
 
-        public JobOfferController(HrContext hrContext, JobOfferService jobOfferService, IUserService userService)
+        public JobOfferController(HrContext hrContext, JobOfferService jobOfferService, ApplicationService applicationService, IUserService userService)
         {
             this.hrContext = hrContext;
             this.jobOfferService = jobOfferService;
+            this.applicationService = applicationService;
             this.userService = userService;
         }
 
@@ -97,10 +99,20 @@ namespace hr_application.Controllers
 
         public IActionResult Delete(Guid id)
         {
-            if (jobOfferService.DeleteJobOffer(id))
+            var result = jobOfferService.DeleteJobOffer(id);
+            if (result == JobOfferService.JobOfferDeleteResult.OK)
                 return RedirectToAction("Index");
-            else
+            else if (result == JobOfferService.JobOfferDeleteResult.NotFound)
                 return NotFound();
+            else if (result == JobOfferService.JobOfferDeleteResult.NotAuthorized)
+                return StatusCode(403);
+            else if (result == JobOfferService.JobOfferDeleteResult.ApplicationsPresent)
+            {
+                applicationService.FillJobOfferViewdata(id, ViewData);
+                return View("JobOfferApplicationsError");
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

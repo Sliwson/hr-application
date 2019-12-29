@@ -56,6 +56,12 @@ namespace hr_application.Services
             return ConvertToListItems(applications.ToList());
         }
 
+        public List<ApplicationListItemViewModel> GetApplicationsForJobOffer(Guid id)
+        {
+            var applications = hrContext.Applications.Where(a => a.RelatedOfferId == id); 
+            return ConvertToListItems(applications.ToList());
+        }
+
         private List<ApplicationListItemViewModel> ConvertToListItems(List<Application> applications)
         {
             var applicationViewModels = new List<ApplicationListItemViewModel>();
