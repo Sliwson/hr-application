@@ -72,6 +72,7 @@ namespace hr_application.Services
 
             var applicationEntity = new Application
             {
+                Version = application.Version,
                 Email = application.Email,
                 FirstName = application.FirstName,
                 LastName = application.LastName,
@@ -102,12 +103,15 @@ namespace hr_application.Services
                 return ServiceResult.NotAuthorized;
             if (foundApplication.State != ApplicationState.Pending)
                 return ServiceResult.ArgumentError;
+            if (foundApplication.Version != application.Version)
+                return ServiceResult.SimultanousEdit;
 
             string cvPath = await storageService.StoreFile(application.CVFile);
 
             var applicationEntity = new Application
             {
                 Id = foundApplication.Id,
+                Version = foundApplication.Version + 1,
                 Email = application.Email,
                 FirstName = application.FirstName,
                 LastName = application.LastName,

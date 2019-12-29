@@ -122,7 +122,10 @@ namespace hr_application.Controllers
             if (ModelState.IsValid)
             {
                 var actionResult = await applicationService.EditApplication(id, application);
-                return ResolveServiceResult(actionResult);
+                if (actionResult == ServiceResult.SimultanousEdit)
+                    ModelState.AddModelError(String.Empty, "Entry already edited");
+                else
+                    return ResolveServiceResult(actionResult);
             }
             
             if (applicationService.FillJobOfferViewdata(application.RelatedOfferId, ViewData) == ServiceResult.NotFound)

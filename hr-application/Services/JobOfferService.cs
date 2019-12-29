@@ -50,6 +50,7 @@ namespace hr_application.Services
 
             var jobOfferModel = new JobOffer
             {
+                Version = 0,
                 Description = jobOffer.Description,
                 ExpirationDate = jobOffer.ExpirationDate,
                 JobTitle = jobOffer.JobTitle,
@@ -78,6 +79,7 @@ namespace hr_application.Services
 
             var editOffer = new JobOfferFormViewModel
             {
+                Version = offer.Version,
                 Description = offer.Description,
                 JobTitle = offer.JobTitle,
                 MaximumSalary = offer.MaximumSalary,
@@ -98,9 +100,13 @@ namespace hr_application.Services
             if (userService.GetUserId() != foundOffer.UserId)
                 return false;
 
+            if (jobOffer.Version != foundOffer.Version)
+                return false;
+
             var editModel = new JobOffer
             {
                 Id = foundOffer.Id,
+                Version = foundOffer.Version + 1,
                 Description = jobOffer.Description,
                 JobTitle = jobOffer.JobTitle,
                 MinimumSalary = jobOffer.MinimumSalary,

@@ -86,7 +86,10 @@ namespace hr_application.Controllers
                 if (jobOfferService.EditOffer(id, jobOffer))
                     return RedirectToAction("Index");
                 else
+                {
+                    ModelState.AddModelError(String.Empty, "Entry already edited");
                     return View(jobOffer);
+                }
             }
 
             return View(jobOffer);
