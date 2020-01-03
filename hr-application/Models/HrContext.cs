@@ -15,5 +15,16 @@ namespace hr_application
 
         public DbSet<JobOffer> JobOffers { get; set; }
         public DbSet<Application> Applications { get; set; }
+        public DbSet<User> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<User>(entity =>
+            {
+                entity.HasKey(s => s.Identifier);
+                entity.Property(s => s.Email).IsRequired();
+                entity.Property(s => s.Role).IsRequired();
+            });
+        }
     }
 }

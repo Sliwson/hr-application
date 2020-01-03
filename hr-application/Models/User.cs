@@ -10,8 +10,6 @@ namespace hr_application.Models
     {
         public string Identifier { get; set; }
         public  UserRole Role { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
         public string Email { get; set; }
     }
 }
