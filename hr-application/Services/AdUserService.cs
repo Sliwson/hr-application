@@ -61,7 +61,7 @@ namespace hr_application.Services
 
         public List<User> ListUsers()
         {
-            return hrContext.Users.Where(u => u.Role == UserRole.User).ToList(); 
+            return hrContext.Users.ToList(); 
         }
 
         public bool ChangeUserRole(string id, UserRole role)
