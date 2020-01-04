@@ -1,28 +1,37 @@
-﻿@{
+﻿@using hr_application.Services;
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>This is a webapp created for MiNI .NET Core MVC course.</p>
-</div>
 
-<environment include="Development">
-<div class="card">
+@if((UserRole)ViewData["Role"] == UserRole.Admin)
+{
+<div class="card mb-3">
     <div class="card-header">
-        <h4>Select your role</h4>
+        <h4>You are logged as admin!</h4>
     </div>
     <div class="card-body ml-3">
         <div class="row">
-            <a class="btn btn-primary mr-3" asp-area="" asp-controller="Admin" asp-action="Login">Admin</a>
-            <a class="btn btn-secondary mr-3" asp-area="" asp-controller="Hr" asp-action="Login">Hr user</a>
-            <a class="btn btn-warning mr-3" asp-area="" asp-controller="Home" asp-action="Login">User</a>
-            <a class="btn btn-dark mr-3" asp-area="" asp-controller="Home" asp-action="Logout">Not logged in</a>
-        </div>
-        <div class="row mt-3">
-            <p>Your current role: @ViewData["Role"]</p>
+            <a class="btn btn-primary mr-3" asp-area="" asp-controller="Admin" asp-action="Index">Go to admin panel</a>
         </div>
     </div>
 </div>
-</environment>
+}
+else if ((UserRole)ViewData["Role"] == UserRole.Hr)
+{
+<div class="card mb-3">
+    <div class="card-header">
+        <h4>You are logged as hr user!</h4>
+    </div>
+    <div class="card-body ml-3">
+        <div class="row">
+            <p>You can add new job offers, and in application tab view replies for your applications.</p>
+        </div>
+    </div>
+</div>
+}
 
+<div class="text-center">
+    <h1 class="display-4">Welcome to HR portal</h1>
+    <p>This is a webapp created for MiNI .NET Core MVC course.</p>
+</div>

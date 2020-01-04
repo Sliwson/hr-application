@@ -181,7 +181,7 @@ namespace hr_application.Controllers
 
         private IActionResult RedirectToLogin()
         {
-            return RedirectToAction(userService.GetRedirectToLoginAction(), userService.GetRedirectToLoginController());
+            return userService.RedirectToLogin(this);
         }
 
         private IActionResult ResolveServiceResult(ServiceResult result)

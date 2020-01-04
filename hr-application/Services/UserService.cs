@@ -20,8 +20,10 @@ namespace hr_application.Services
         bool IsAuthenticated();
         string GetUserId();
         UserRole GetUserRole();
-        string GetRedirectToLoginAction();
-        string GetRedirectToLoginController();
+        IActionResult RedirectToLogin(Controller c);
+        List<User> ListUsers();
+        bool ChangeUserRole(string id, UserRole role);
+        void TryAddCurrentUser();
         /* DEBUG CODE */
         void AuthenticateAs(UserRole role);
     }
@@ -30,9 +32,9 @@ namespace hr_application.Services
     {
         public static List<User> _users = new List<User>
         {
-            new User { Identifier = "test-user", Name = "Pan", Surname = "Pawel", Role = UserRole.User },
-            new User { Identifier = "test-hr", Name = "Pan", Surname = "Hr", Role = UserRole.Hr },
-            new User { Identifier = "test-admin", Name = "Pan", Surname = "Admin", Role = UserRole.Admin }
+            new User { Identifier = "test-user", Email = "test@test.pl", Role = UserRole.User },
+            new User { Identifier = "test-hr", Email = "test@test.pl", Role = UserRole.Hr },
+            new User { Identifier = "test-admin", Email = "test@test.pl", Role = UserRole.Admin }
         };
 
         public string GetUserId()
@@ -56,16 +58,6 @@ namespace hr_application.Services
             return currentId != -1;
         }
 
-        public string GetRedirectToLoginAction()
-        {
-            return "Index";
-        }
-
-        public string GetRedirectToLoginController()
-        {
-            return "Home";
-        }
-
         /* DEBUG CODE */
         public void AuthenticateAs(UserRole role)
         {
@@ -77,6 +69,25 @@ namespace hr_application.Services
                 currentId = 0;
             else
                 currentId = -1;
+        }
+
+        public List<User> ListUsers()
+        {
+            return new List<User>();
+        }
+
+        public bool ChangeUserRole(string id, UserRole role)
+        {
+            return true;
+        }
+
+        public void TryAddCurrentUser()
+        {
+        }
+
+        public IActionResult RedirectToLogin(Controller c)
+        {
+            return c.RedirectToAction("Index", "Home"); 
         }
 
         private static int currentId = 0;

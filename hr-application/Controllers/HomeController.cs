@@ -19,6 +19,7 @@ namespace hr_application.Controllers
         }
         public IActionResult Index()
         {
+            userService.TryAddCurrentUser();
             ViewData["Role"] = userService.GetUserRole();
             return View();
         }
