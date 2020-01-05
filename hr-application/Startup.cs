@@ -38,12 +38,16 @@ namespace hr_application
             services.AddAuthentication(AzureADB2CDefaults.AuthenticationScheme)
                 .AddAzureADB2C(options => Configuration.Bind("AzureAdB2C", options));
 
+            var  connectionString = "";
             if (Environment.GetEnvironmentVariable("IS_LOCAL") == "true")
-                services.AddDbContext<HrContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("LocalDatabase")));
+                connectionString = Configuration.GetConnectionString("LocalDatabase");
             else if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-                services.AddDbContext<HrContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DevDatabase")));
+                connectionString = Configuration.GetConnectionString("DevDatabase");
+            else
+                connectionString = Configuration.GetConnectionString("ProductionDatabase");
+
+            services.AddDbContext<HrContext>(options =>
+                    options.UseSqlServer(connectionString));
 
             services.AddScoped(typeof(ApplicationService));
             services.AddScoped(typeof(IUserService), typeof(MockUserService));
