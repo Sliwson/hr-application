@@ -1,0 +1,23 @@
+﻿@model hr_application.ViewModels.JobOfferFormViewModel
+
+@{
+    ViewData["Title"] = "Edit job offer";
+    ViewData["FormButtonString"] = "Save";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit job offer</h1>
+<hr>
+<div class="row">
+    <div class="col-md-6">
+        <partial name="_JobOfferFormPartial"/>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

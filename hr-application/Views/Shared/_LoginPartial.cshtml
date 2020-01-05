@@ -1,0 +1,27 @@
+﻿@using System.Security.Principal
+@using Microsoft.AspNetCore.Authentication.AzureADB2C.UI
+@using Microsoft.Extensions.Options
+@using System.Security.Claims;
+
+<ul class="navbar-nav">
+@if (User.Identity.IsAuthenticated)
+{
+    var givenName = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName).Value;
+    
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="AzureADB2C" asp-controller="Account" asp-action="EditProfile">
+            <span class="text-dark">Hello @givenName!</span>
+        </a>
+    </li>
+    
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="AzureADB2C" asp-controller="Account" asp-action="SignOut">Sign out</a>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="AzureADB2C" asp-controller="Account" asp-action="SignIn">Sign in</a>
+    </li>
+}
+</ul>

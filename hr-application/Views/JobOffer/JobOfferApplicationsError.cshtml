@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Cannot this job offer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Cannot delete this job offer</h1>
+<hr />
+<div class="row">
+    <div class="col">
+        <partial name="_JobOfferDetailsPartial" />
+    </div>
+</div>
+<div class="mt-3">
+    <p>It has related applications.</p>
+</div>
+<div class="mt-3">
+    <a class="btn btn-primary" href="@Url.Action("Index", "JobOffer")">Back to list</a>
+</div>

@@ -1,0 +1,37 @@
+﻿@using hr_application.Services;
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+@if((UserRole)ViewData["Role"] == UserRole.Admin)
+{
+<div class="card mb-3">
+    <div class="card-header">
+        <h4>You are logged as admin!</h4>
+    </div>
+    <div class="card-body ml-3">
+        <div class="row">
+            <a class="btn btn-primary mr-3" asp-area="" asp-controller="Admin" asp-action="Index">Go to admin panel</a>
+        </div>
+    </div>
+</div>
+}
+else if ((UserRole)ViewData["Role"] == UserRole.Hr)
+{
+<div class="card mb-3">
+    <div class="card-header">
+        <h4>You are logged as hr user!</h4>
+    </div>
+    <div class="card-body ml-3">
+        <div class="row">
+            <p>You can add new job offers, and in application tab view replies for your applications.</p>
+        </div>
+    </div>
+</div>
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to HR portal</h1>
+    <p>This is a webapp created for MiNI .NET Core MVC course.</p>
+</div>

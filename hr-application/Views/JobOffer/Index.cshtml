@@ -1,0 +1,59 @@
+﻿@model IEnumerable<hr_application.ViewModels.JobOfferListItemViewModel>
+
+@{
+    ViewData["Title"] = "Job offers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Job offers</h1>
+
+@if (ViewData["BeforePartialName"] != null) 
+{
+    <partial name="@ViewData["BeforePartialName"]"/>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.JobTitle)
+            </th>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Salary)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExpirationDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobTitle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Salary)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Location)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ExpirationDate)
+            </td>
+            <td>
+                <a class="btn btn-primary" href="@Url.Action("Details", "JobOffer", new { Id = item.Id})">Details</a>
+                @if(ViewData["ButtonsPartialName"] != null)
+                {
+                    @await Html.PartialAsync(ViewData["ButtonsPartialName"] as string, item.Id)
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

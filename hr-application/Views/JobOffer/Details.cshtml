@@ -1,0 +1,19 @@
+﻿@using hr_application.ViewModels
+@{
+    ViewData["Title"] = "Job offer details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var jobOffer = ViewData["JobOfferDetails"] as JobOfferDetailsViewModel;
+}
+
+<h1>Job offer details</h1>
+<hr />
+
+<partial name="_JobOfferDetailsPartial" />
+
+<div class="mt-3">
+    @if(ViewData["ButtonsPartialName"] != null)
+    {
+        @await Html.PartialAsync(ViewData["ButtonsPartialName"] as string, jobOffer.Id)
+    }
+    <a class="btn btn-primary" asp-action="Index">Back to List</a>
+</div>
