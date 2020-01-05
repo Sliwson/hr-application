@@ -23,6 +23,7 @@ namespace hr_application.Models
         public string Location { get; set; }
 
         public string UserId { get; set; }
+        public User User { get; set; }
 
         public DateTime ExpirationDate { get; set; }
         

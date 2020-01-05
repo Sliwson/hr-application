@@ -29,6 +29,7 @@ namespace hr_application.Models
         public string PhoneNumber { get; set; }
 
         public string UserId { get; set; }
+        public User User { get; set; }
 
         public ApplicationState State { get; set; }
 
