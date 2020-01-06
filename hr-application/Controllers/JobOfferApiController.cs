@@ -26,9 +26,9 @@ namespace hr_application.Controllers
 
         // GET: api/JobOfferApi
         [HttpGet]
-        public IEnumerable<JobOfferListItemViewModel> Get()
+        public IEnumerable<JobOfferListItemViewModel> Get(int count)
         {
-            return jobOfferService.GetAllJobOffers();
+            return jobOfferService.GetLastJobOffers(count);
         }
     }
 }

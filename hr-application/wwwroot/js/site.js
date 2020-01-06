@@ -5,6 +5,7 @@
     $.ajax({
         url: '/api/JobOfferApi',
         type: 'GET',
+        data: { count: 10 },
         dataType: 'json',
         success: function (data) {
             var $table = $('<table/>').addClass('table borderless');
