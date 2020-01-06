@@ -31,7 +31,23 @@ else if ((UserRole)ViewData["Role"] == UserRole.Hr)
 </div>
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to HR portal</h1>
-    <p>This is a webapp created for MiNI .NET Core MVC course.</p>
+<div class="card mb-3">
+    <div class="card-header">
+        <h4>Welcome to hr portal!</h4>
+    </div>
+    <div class="card-body ml-3">
+        <div class="row">
+            <p>Here are some of the newest job offers!</p>
+        </div>
+        <div class="row">
+            <div id="jobOffers" class="table-responsive"></div>
+        </div>
+    </div>
 </div>
+
+<script>
+    window.addEventListener('DOMContentLoaded',
+        function() {
+            fetchData();
+        });
+</script>

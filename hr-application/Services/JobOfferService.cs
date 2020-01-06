@@ -39,6 +39,16 @@ namespace hr_application.Services
             return displayList;
         }
 
+        public List<JobOfferListItemViewModel> GetLastJobOffers(int count)
+        {
+            List<JobOfferListItemViewModel> displayList = new List<JobOfferListItemViewModel>();
+            var jobOffers = hrContext.JobOffers.ToList().TakeLast(10);
+            foreach (var item in jobOffers)
+                displayList.Add(new JobOfferListItemViewModel(item));
+
+            return displayList;
+        }
+
         public List<JobOfferListItemViewModel> GetUserJobOffers()
         {
             if (userService.GetUserRole() != UserRole.Hr)
