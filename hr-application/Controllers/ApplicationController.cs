@@ -27,22 +27,22 @@ namespace hr_application.Controllers
             this.userService = userService;
         }
 
-        public IActionResult Index()
+        public IActionResult Index([FromQuery(Name = "q")] string query)
         {
             applicationService.SetRoleApplicationViewData(ViewData);
 
-            var role = userService.GetUserRole();
-            if (role == UserRole.Admin)
-                return View(applicationService.GetAllApplications());
-            else if (role == UserRole.Hr)
-                return View(applicationService.GetHrUserApplications());
-            else if (role == UserRole.User)
-                return View(applicationService.GetUserApplications());
+            if (userService.IsAuthenticated())
+            {
+                if (query == null)
+                    return View(applicationService.GetApplications());
+                else
+                    return View(applicationService.GetApplicationsFiltered(query));
+            }
             else
                 return RedirectToLogin();
         }
 
-        public IActionResult Query([FromQuery(Name = "q")] string query)
+        public IActionResult HrQuery([FromQuery(Name = "q")] string query)
         {
             if (userService.GetUserRole() != UserRole.Hr)
                 return StatusCode(403);

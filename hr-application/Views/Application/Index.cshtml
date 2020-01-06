@@ -5,5 +5,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>All applications</h1>
+<h1>Applications</h1>
+<hr />
+<form method="get">
+<div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4">
+    <div class="input-group">
+        <input name="q" type="search" placeholder="What're you searching for?" aria-describedby="button-addon1" class="form-control border-0 bg-light" value="@(Context.Request.Query["q"])">
+        <button type="submit" class="btn text-primary">Search</button>
+    </div>
+</div>
+</form>
+<hr />
 <partial name="_ApplicationListPartial" />

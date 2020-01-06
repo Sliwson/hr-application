@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using hr_application.Services;
+using Microsoft.OpenApi.Models;
 
 namespace hr_application
 {
@@ -56,6 +57,11 @@ namespace hr_application
             services.AddScoped(typeof(JobOfferService));
             services.AddScoped(typeof(StorageService));
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Job offer api", Version = "v1" });
+            });
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -65,6 +71,11 @@ namespace hr_application
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Job offer api");
+                });
             }
             else
             {
