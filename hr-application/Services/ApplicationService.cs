@@ -21,6 +21,26 @@ namespace hr_application.Services
             this.storageService = storageService;
         }
 
+        public List<ApplicationListItemViewModel> GetApplications()
+        {
+            var role = userService.GetUserRole();
+            if (role == UserRole.Admin)
+                return GetAllApplications();
+            else if (role == UserRole.Hr)
+                return GetHrUserApplications();
+            else if (role == UserRole.User)
+                return GetUserApplications();
+
+            return new List<ApplicationListItemViewModel>();
+        }
+
+        public List<ApplicationListItemViewModel> GetApplicationsFiltered(string query)
+        {
+            var list = GetApplications();
+            var filtered = list.Where(a => a.Email.Contains(query) || a.FirstName.Contains(query) || a.LastName.Contains(query) || a.PhoneNumber.Contains(query));
+            return filtered.ToList(); 
+        }
+
         public List<ApplicationListItemViewModel> GetAllApplications()
         {
             var applications = hrContext.Applications.ToList();
